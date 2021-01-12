@@ -1,3 +1,4 @@
+
 function DotEnvConfigure() {
     $debug = $false
     $path = $PSScriptRoot 
@@ -61,24 +62,38 @@ function ShowHelp($forArgument) {
 
     if ($null -eq $forArgument) {
         Write-Host "General help" 
+        
+        Write-Host "hexatown go <destination> [instance]           "  -NoNewline  -ForegroundColor Green
+        Write-Host "Navigate to <destination> in optional instance "
+        Write-Host "hexatown pack                                  "  -NoNewline  -ForegroundColor Green
+        Write-Host "Create a package file "
+
     }
     else {
         switch ($forArgument.toUpper()) {
             PACK { write-host "You pack by ...." } 
             GO   { write-host "Launch instance specific urls" -ForegroundColor Black -BackgroundColor White
+            Write-Host "hexatown go <destination> [instance] "  -ForegroundColor Green
+            Write-Host " "  
             
-            Write-Host "hexatown go code "  -NoNewline  -ForegroundColor Green
+            Write-Host "hexatown go code       "  -NoNewline  -ForegroundColor Green
             Write-Host "Navigate to Code+Test console"
-            Write-Host "hexatown go monitor "  -NoNewline  -ForegroundColor Green
+            Write-Host "hexatown go monitor    "  -NoNewline  -ForegroundColor Green
             Write-Host "Navigate to Monitor console"
-            Write-Host "hexatown go kudo "  -NoNewline  -ForegroundColor Green
+            Write-Host "hexatown go kudo       "  -NoNewline  -ForegroundColor Green
             Write-Host "Navigate to KUDO PowerShell debug console"
-            Write-Host "hexatown go insight " -NoNewline  -ForegroundColor Green
+            Write-Host "hexatown go insight    " -NoNewline  -ForegroundColor Green
             Write-Host "Navigate to Insight Live Metrics"
-            Write-Host "hexatown go site " -NoNewline  -ForegroundColor Green
+            Write-Host "hexatown go site       " -NoNewline  -ForegroundColor Green
             Write-Host "Navigate to Azure App Site"
+            Write-Host "hexatown go sp         " -NoNewline  -ForegroundColor Green
+            Write-Host "Navigate to SharePoint site contents"
             Write-Host "hexatown go sharepoint " -NoNewline  -ForegroundColor Green
             Write-Host "Navigate to SharePoint site contents"
+            Write-Host "hexatown go edit       " -NoNewline  -ForegroundColor Green
+            Write-Host "Navigate to PowerApps studio"
+            Write-Host "hexatown go run        " -NoNewline  -ForegroundColor Green
+            Write-Host "Run Primary PowerApps"
             
             } 
             Default {
@@ -99,9 +114,15 @@ function ShowErrorMessage($message) {
 function Go($instance, $arg1, $arg2,$arg3) {
     
     $urls = @{}
-    $codehost = $instance.$arg1
+    $area = $arg1
+    if ($null -eq $arg2 ){
+        $environment = "prod"
+    }else{
+        $environment = $arg2
+    }
+    $codehost = $instance.$environment
     if ($null -eq $codehost) {
-        ShowErrorMessage "Cannot find instance '$arg1' "
+        ShowErrorMessage "NO INSTANCE FOUND WITH ENVIRONMENT NAME '$environment'"
         return
     }
     
@@ -114,13 +135,17 @@ function Go($instance, $arg1, $arg2,$arg3) {
     $urls.kudo = "https://$name.scm.azurewebsites.net/DebugConsole/?shell=powershell"
     $urls.insight = "$azureresourceurl/providers/microsoft.insights/components/$($codehost.insights)/quickPulse"
     $urls.site = "$azureresourceurl/providers/Microsoft.Web/sites/$($codehost.site)/appServices"
-    $urls.code = "$siteurlPrefix$("code")$siteurlPrefix"
-    $urls.monitor = "$siteurlPrefix$("monitor")$siteurlPrefix"
+    $urls.code = "$siteurlPrefix$("code")$siteurlSuffix"
+    $urls.monitor = "$siteurlPrefix$("monitor")$siteurlSuffix"
     $urls.sharepoint = "$($codehost.sharepoint)/_layouts/15/viewlsts.aspx?view=14"
+    $urls.sp = "$($codehost.sharepoint)/_layouts/15/viewlsts.aspx?view=14"
+    $urls.edit = "$($codehost.powerappsdeveloper)"
+    $urls.run = "$($codehost.powerappsruntime)"
 
-    $url = $urls.$arg2
+    $url = $urls.$area
+    
     if ($null -eq $url ) {
-        ShowErrorMessage "Cannot find '$arg2' in instance '$arg1' "
+        ShowErrorMessage "Cannot find '$area' in instance '$arg2' "
         return
     }
     write-host $url
@@ -134,7 +159,9 @@ function Go($instance, $arg1, $arg2,$arg3) {
 function Pack($root) {
     
     Compress-Archive -LiteralPath "$root\src" -DestinationPath "$root\src" -Force
-    Start-Process "explorer ./src.zip"
+    $path = "explorer $root,select,src.zip"
+    Invoke-Expression $path
+  
   
 }
 
@@ -166,7 +193,7 @@ function GetInstance($instanceFile) {
 #>
 
 Write-Host "hexatown.com " -ForegroundColor Green -NoNewline
-Write-Host "version 0.1" -ForegroundColor:DarkGray
+Write-Host "version 0.1.2" -ForegroundColor:DarkGray
 
 
 $path = Get-Location
@@ -176,7 +203,7 @@ $arg2 = $args[2]
 $arg3 = $args[3]
 
 <#
-$path = "C:\hexatown.com\xxx"
+$path = "C:\hexatown.com\InfoCast"
 $arg0 = "go"
 $arg1 = "prod"
 $arg2 = "site"
