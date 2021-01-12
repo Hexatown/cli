@@ -198,7 +198,7 @@ function Init($root,$packageName) {
 "@
         $defaultValues | Out-File $packagefile
         
-    
+    write-host "Project file created" -ForegroundColor DarkGreen
     
 }
 
