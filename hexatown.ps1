@@ -65,6 +65,8 @@ function ShowHelp($forArgument) {
         
         Write-Host "hexatown go <destination> [instance]           "  -NoNewline  -ForegroundColor Green
         Write-Host "Navigate to <destination> in optional instance "
+        Write-Host "hexatown init <destination>                    "  -NoNewline  -ForegroundColor Green
+        Write-Host "Create a project file "
         Write-Host "hexatown pack                                  "  -NoNewline  -ForegroundColor Green
         Write-Host "Create a package file "
 
@@ -165,6 +167,68 @@ function Pack($root) {
   
 }
 
+function Init($root,$packageName) {
+    if ($null -eq $packageName ) {
+        ShowErrorMessage "Missing project name"
+        return
+    }
+
+    $packagefile = $root.Path + "\package.json"
+    
+    if ((Test-Path $packagefile )) {
+        ShowErrorMessage "Project have already been created"
+        return
+    }
+    
+        $defaultValues = @"
+{
+  "name": "$packageName",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "run": "hexatown run",
+    "pack" : "hexatown pack"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
+
+"@
+        $defaultValues | Out-File $packagefile
+        
+    
+    
+}
+
+function OpenEnv($name) {
+    $environmentPath = ([System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::CommonApplicationData)) 
+    $appdir = $environmentPath + "\hexatown.com\"+ $name
+    $envfile = $environmentPath + "\hexatown.com\"+ $name + "\.env"
+    write-host $appdir 
+    if (!(Test-Path $appdir)) {
+        New-Item -ItemType Directory -Force -Path $appdir
+    }
+    if (!(Test-Path $envfile )) {
+        $defaultValues = @"
+APPCLIENT_ID=
+APPCLIENT_SECRET=
+APPCLIENT_DOMAIN=
+SITEURL=https://xxxxxxx.sharepoint.com/sites/hexatown
+AADDOMAIN=xxxxxx.com
+"@
+        $defaultValues | Out-File $envfile
+        
+    }
+    $path = "explorer $appdir"
+    Invoke-Expression $path
+  
+    $editor = "notepad $envfile"
+    Invoke-Expression $editor
+    
+}
+
 
 function GetInstance($instanceFile) {
         
@@ -218,7 +282,7 @@ if ($null -eq $arg0) {
 $command = $arg0.toUpper()
 switch ($command) {
     HELP { ShowHelp $arg1 }
-    INIT { Init $arg1 $arg2 $arg3 }
+    INIT { Init $path $arg1 }
     Default {
         
 
@@ -237,6 +301,7 @@ switch ($command) {
         $project = Get-Content $projectFile | ConvertFrom-Json
         
         switch ($command) {
+            ENV  { OpenEnv $project.name }
             PACK { 
                 Write-Host "Packing $($project.name)"
                 Pack $path 
@@ -265,3 +330,12 @@ switch ($command) {
 
 
 
+
+
+<#
+https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/set-psbreakpoint?view=powershell-7.1
+https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/remove-psbreakpoint?view=powershell-7.1
+Set-PSBreakpoint -Command "checklog"
+get-psbreakpoint | remove-psbreakpoint
+
+#>
