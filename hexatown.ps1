@@ -202,6 +202,14 @@ function Init($root,$packageName) {
     
 }
 
+function Editor($root) {
+    $timerJob = "$root\run.ps1"
+    $rootJob = "$root\src\jobs\powershell\index.ps1"
+    Invoke-Expression "ise ""$timerjob,$rootjob"""    
+    
+    
+}
+
 function OpenEnv($name) {
     $environmentPath = ([System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::CommonApplicationData)) 
     $appdir = $environmentPath + "\hexatown.com\"+ $name
@@ -301,6 +309,7 @@ switch ($command) {
         $project = Get-Content $projectFile | ConvertFrom-Json
         
         switch ($command) {
+            EDITOR { Editor $path  }
             ENV  { OpenEnv $project.name }
             PACK { 
                 Write-Host "Packing $($project.name)"
