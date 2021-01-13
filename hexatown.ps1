@@ -1,60 +1,4 @@
 
-function DotEnvConfigure() {
-    $debug = $false
-    $path = $PSScriptRoot 
-    $loop = $true
-    
-    do {
-        $filename = "$path\.env"
-        if ($debug) {
-            write-output "Checking $filename"
-        }
-        if (Test-Path $filename) {
-            if ($debug) {
-                write-output "Using $filename"
-            }
-            $lines = Get-Content $filename
-             
-            foreach ($line in $lines) {
-                    
-                $nameValuePair = $line.split("=")
-                if ($nameValuePair[0] -ne "") {
-                    if ($debug) {
-                        write-host "Setting >$($nameValuePair[0])<"
-                    }
-                    $value = $nameValuePair[1]
-                    
-                    for ($i = 2; $i -lt $nameValuePair.Count; $i++) {
-                        $value += "="
-                        $value += $nameValuePair[$i]
-                    }
-
-                    if ($debug) {
-                        write-host "To >$value<"
-                    }    
-                    [System.Environment]::SetEnvironmentVariable($nameValuePair[0],  $value)
-                }
-            }
-    
-            $loop = $false
-        }
-        else {
-            $lastBackslash = $path.LastIndexOf("\")
-            if ($lastBackslash -lt 4) {
-                $loop = $false
-                if ($debug) {
-                    write-output "Didn't find any .env file  "
-                }
-            }
-            else {
-                $path = $path.Substring(0, $lastBackslash)
-            }
-        }
-    
-    } while ($loop)
-    
-}
-    
 
 function ShowHelp($forArgument) {
 
@@ -156,6 +100,11 @@ function Go($instance, $arg1, $arg2,$arg3) {
   
 }
 
+function CreateLists($hexatown){
+
+
+
+}
 
 
 function Pack($root) {
@@ -206,6 +155,14 @@ function Editor($root) {
     $timerJob = "$root\run.ps1"
     $rootJob = "$root\src\jobs\powershell\index.ps1"
     Invoke-Expression "ise ""$timerjob,$rootjob"""    
+    
+    
+}
+
+function Self($root) {
+    $self = "$PSScriptRoot\hexatown.ps1"
+    
+    Invoke-Expression "ise ""$self"""    
     
     
 }
@@ -291,6 +248,7 @@ $command = $arg0.toUpper()
 switch ($command) {
     HELP { ShowHelp $arg1 }
     INIT { Init $path $arg1 }
+    SELF { Self $path  }
     Default {
         
 
@@ -333,10 +291,266 @@ switch ($command) {
 }
 
 
+function CreateCoreList($hexatown){
+$loglist = @'
+{
+    "description":  "",
+    
+    "displayName":  "Log",
+    "list":  {
+                 "contentTypesEnabled":  false,
+                 "hidden":  false,
+                 "template":  "genericList"
+             },
+    "columns":  [
+                    {
+                        "columnGroup":  "Custom Columns",
+                        "description":  "",
+                        "displayName":  "Title",
+                        "enforceUniqueValues":  false,
+                        "hidden":  false,
+                        "id":  "fa564e0f-0c70-4ab9-b863-0177e6ddd247",
+                        "indexed":  false,
+                        "name":  "Title",
+                        "readOnly":  false,
+                        "required":  true,
+                        "text":  {
+                                     "allowMultipleLines":  false,
+                                     "appendChangesToExistingText":  false,
+                                     "linesForEditing":  0,
+                                     "maxLength":  255
+                                 }
+                    },
+                    {
+                        "columnGroup":  "Custom Columns",
+                        "description":  "",
+                        "displayName":  "Compliance Asset Id",
+                        "enforceUniqueValues":  false,
+                        "hidden":  false,
+                        "indexed":  false,
+                        "name":  "ComplianceAssetId",
+                        "readOnly":  true,
+                        "required":  false,
+                        "text":  {
+                                     "allowMultipleLines":  false,
+                                     "appendChangesToExistingText":  false,
+                                     "linesForEditing":  0,
+                                     "maxLength":  255
+                                 }
+                    },
+                    {
+                        "columnGroup":  "Custom Columns",
+                        "description":  "",
+                        "displayName":  "System",
+                        "enforceUniqueValues":  false,
+                        "hidden":  false,
+                        "indexed":  false,
+                        "name":  "System",
+                        "readOnly":  false,
+                        "required":  false,
+                        "text":  {
+                                     "allowMultipleLines":  false,
+                                     "appendChangesToExistingText":  false,
+                                     "linesForEditing":  0,
+                                     "maxLength":  255
+                                 }
+                    },
+                    {
+                        "columnGroup":  "Custom Columns",
+                        "description":  "",
+                        "displayName":  "Sub System",
+                        "enforceUniqueValues":  false,
+                        "hidden":  false,
+                        "indexed":  false,
+                        "name":  "SubSystem",
+                        "readOnly":  false,
+                        "required":  false,
+                        "text":  {
+                                     "allowMultipleLines":  false,
+                                     "appendChangesToExistingText":  false,
+                                     "linesForEditing":  0,
+                                     "maxLength":  255
+                                 }
+                    },
+                    {
+                        "columnGroup":  "Custom Columns",
+                        "description":  "",
+                        "displayName":  "Status",
+                        "enforceUniqueValues":  false,
+                        "hidden":  false,
+                        "indexed":  false,
+                        "name":  "Status",
+                        "readOnly":  false,
+                        "required":  false,
+                        "text":  {
+                                     "allowMultipleLines":  false,
+                                     "appendChangesToExistingText":  false,
+                                     "linesForEditing":  0,
+                                     "maxLength":  255
+                                 }
+                    },
+                    {
+                        "columnGroup":  "Custom Columns",
+                        "description":  "",
+                        "displayName":  "Quantity",
+                        "enforceUniqueValues":  false,
+                        "hidden":  false,
+                        "indexed":  false,
+                        "name":  "Quantity",
+                        "readOnly":  false,
+                        "required":  false,
+                        "number":  {
+                                       "decimalPlaces":  "none",
+                                       "displayAs":  "number",
+                                       "maximum":  1.7976931348623157E+308,
+                                       "minimum":  -1.7976931348623157E+308
+                                   }
+                    },
+                    {
+                        "columnGroup":  "Custom Columns",
+                        "description":  "",
+                        "displayName":  "System Reference",
+                        "enforceUniqueValues":  false,
+                        "hidden":  false,
+                        "indexed":  false,
+                        "name":  "SystemReference",
+                        "readOnly":  false,
+                        "required":  false,
+                        "text":  {
+                                     "allowMultipleLines":  false,
+                                     "appendChangesToExistingText":  false,
+                                     "linesForEditing":  0,
+                                     "maxLength":  255
+                                 }
+                    },
+                    {
+                        "columnGroup":  "Custom Columns",
+                        "description":  "",
+                        "displayName":  "Details",
+                        "enforceUniqueValues":  false,
+                        "hidden":  false,
+                        "indexed":  false,
+                        "name":  "Details",
+                        "readOnly":  false,
+                        "required":  false,
+                        "text":  {
+                                     "allowMultipleLines":  true,
+                                     "appendChangesToExistingText":  false,
+                                     "linesForEditing":  6,
+                                     "textType":  "plain"
+                                 }
+                    },
+                    {
+                        "columnGroup":  "Custom Columns",
+                        "description":  "",
+                        "displayName":  "Host",
+                        "enforceUniqueValues":  false,
+                        "hidden":  false,
+                        "indexed":  false,
+                        "name":  "Host",
+                        "readOnly":  false,
+                        "required":  false,
+                        "text":  {
+                                     "allowMultipleLines":  false,
+                                     "appendChangesToExistingText":  false,
+                                     "linesForEditing":  0,
+                                     "maxLength":  255
+                                 }
+                    },
+                    {
+                        "columnGroup":  "Custom Columns",
+                        "description":  "",
+                        "displayName":  "Identifier",
+                        "enforceUniqueValues":  false,
+                        "hidden":  false,
+                        "indexed":  false,
+                        "name":  "Identifier",
+                        "readOnly":  false,
+                        "required":  false,
+                        "text":  {
+                                     "allowMultipleLines":  false,
+                                     "appendChangesToExistingText":  false,
+                                     "linesForEditing":  0,
+                                     "maxLength":  255
+                                 }
+                    },
+                    {
+                        "columnGroup":  "Custom Columns",
+                        "description":  "",
+                        "displayName":  "Workflow",
+                        "enforceUniqueValues":  false,
+                        "hidden":  false,
+                        "indexed":  false,
+                        "name":  "Workflow",
+                        "readOnly":  false,
+                        "required":  false,
+                        "text":  {
+                                     "allowMultipleLines":  false,
+                                     "appendChangesToExistingText":  false,
+                                     "linesForEditing":  0,
+                                     "maxLength":  255
+                                 }
+                    },
+                    {
+                        "columnGroup":  "Custom Columns",
+                        "description":  "",
+                        "displayName":  "Quantifier",
+                        "enforceUniqueValues":  false,
+                        "hidden":  false,
+                        "indexed":  false,
+                        "name":  "Quantifier",
+                        "readOnly":  false,
+                        "required":  false,
+                        "text":  {
+                                     "allowMultipleLines":  false,
+                                     "appendChangesToExistingText":  false,
+                                     "linesForEditing":  0,
+                                     "maxLength":  255
+                                 }
+                    }
+                ]
+}
+
+'@
+
+$propertieslist = @'
+{
+    "description":  "",
+    "displayName":  "PropertyBag",
+    "list":  {
+                 "contentTypesEnabled":  false,
+                 "hidden":  false,
+                 "template":  "genericList"
+             },
+    "columns":  [
+                    {
+                        "columnGroup":  "Custom Columns",
+                        "description":  "",
+                        "displayName":  "Value",
+                        "enforceUniqueValues":  false,
+                        "hidden":  false,
+                        "id":  "2f3ccd45-6989-416e-bf9f-2302bcccf089",
+                        "indexed":  false,
+                        "name":  "Value",
+                        "readOnly":  false,
+                        "required":  false,
+                        "text":  {
+                                     "allowMultipleLines":  true,
+                                     "appendChangesToExistingText":  false,
+                                     "linesForEditing":  6,
+                                     "textType":  "plain"
+                                 }
+                    }
+                ]
+}
 
 
+'@
 
+ GraphAPI $hexatown POST "$($hexatown.site)/lists" $loglist
+ GraphAPI $hexatown POST "$($hexatown.site)/lists" $propertieslist
 
+}
 
 
 
