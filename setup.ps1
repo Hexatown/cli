@@ -168,6 +168,7 @@ param (
   $downloader.DownloadFile($url, $file)
 }
 
+$url = "https://blob.jumpto365.com/hexatown/hexatown.zip?v=5"
 if ($url -eq $null -or $url -eq '') {
   Write-Output "Getting latest version of the Hexatown package for download."
   $url = "https://jumpto36500001.blob.core.windows.net/hexatown/hexatown.xml"
@@ -241,8 +242,13 @@ if ($unzipMethod -eq '7zip') {
 
 # Call hexatown install
 Write-Output "Installing hexatown on this machine"
-$srcFolder = Join-Path $tempDir "src"
-$hexaInstallPS1 = Join-Path $srcFolder "hexatownInstall.ps1"
+
+ Invoke-Expression "explorer $tempDir"
+#TODO Everything after this
+exit 
+
+
+$hexaInstallPS1 = Join-Path $tempDir "hexatownInstall.ps1"
 
 & $hexaInstallPS1
 

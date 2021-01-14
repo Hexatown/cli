@@ -1,3 +1,26 @@
+<#
+HEXATOWN CLI
+------------
+Copyright 2021 Niels Gregers Johansen
+
+MIT Licensed
+
+2021-01-14 Prepared for Alpha release
+2021-01-03 Baseline
+
+#>
+# https://docs.microsoft.com/en-us/powershell/scripting/developer/cmdlet/approved-verbs-for-windows-powershell-commands?view=powershell-7.1 
+ 
+
+function Read-Hexatown-Metadata(){
+    return Get-Content -Path "$PSScriptRoot\package.json" -Raw  | ConvertFrom-Json
+}
+
+function Show-Hexatown-CLIVersion(){
+
+    $metadata = Read-Hexatown-Metadata
+    Write-Host "version $($metadata.version)" -ForegroundColor:DarkGray
+}
 
 
 function ShowHelp($forArgument) {
@@ -11,8 +34,20 @@ function ShowHelp($forArgument) {
         Write-Host "Navigate to <destination> in optional instance "
         Write-Host "hexatown init <destination>                    "  -NoNewline  -ForegroundColor Green
         Write-Host "Create a project file "
+        Write-Host "hexatown env                                   "  -NoNewline  -ForegroundColor Green
+        Write-Host "Change location to the path of the current project env, creates an .env file is missing "
         Write-Host "hexatown pack                                  "  -NoNewline  -ForegroundColor Green
         Write-Host "Create a package file "
+        Write-Host "hexatown pop                                   "  -NoNewline  -ForegroundColor Green
+        Write-Host "Change to the last location on stack "
+        Write-Host "hexatown self                                  "  -NoNewline  -ForegroundColor Green
+        Write-Host "Open the CLI code in editor"
+        Write-Host "hexatown data                                  "  -NoNewline  -ForegroundColor Green
+        Write-Host "Change location to %appdata%"
+        Write-Host "hexatown version                               "  -NoNewline  -ForegroundColor Green
+        Write-Host "Show version"
+
+
 
     }
     else {
@@ -32,6 +67,10 @@ function ShowHelp($forArgument) {
             Write-Host "Navigate to Insight Live Metrics"
             Write-Host "hexatown go site       " -NoNewline  -ForegroundColor Green
             Write-Host "Navigate to Azure App Site"
+            Write-Host "hexatown go func       " -NoNewline  -ForegroundColor Green
+            Write-Host "Navigate to Azure App Site Functions Area"
+            Write-Host "hexatown go functions  " -NoNewline  -ForegroundColor Green
+            Write-Host "Navigate to Azure App Site Functions Area"
             Write-Host "hexatown go sp         " -NoNewline  -ForegroundColor Green
             Write-Host "Navigate to SharePoint site contents"
             Write-Host "hexatown go sharepoint " -NoNewline  -ForegroundColor Green
@@ -83,10 +122,13 @@ function Go($instance, $arg1, $arg2,$arg3) {
     $urls.site = "$azureresourceurl/providers/Microsoft.Web/sites/$($codehost.site)/appServices"
     $urls.code = "$siteurlPrefix$("code")$siteurlSuffix"
     $urls.monitor = "$siteurlPrefix$("monitor")$siteurlSuffix"
+    $urls.func = "$azureresourceurl/providers/Microsoft.Web/sites/$($codehost.site)/functionsList"
+    $urls.functions = "$azureresourceurl/providers/Microsoft.Web/sites/$($codehost.site)/functionsList"
     $urls.sharepoint = "$($codehost.sharepoint)/_layouts/15/viewlsts.aspx?view=14"
     $urls.sp = "$($codehost.sharepoint)/_layouts/15/viewlsts.aspx?view=14"
     $urls.edit = "$($codehost.powerappsdeveloper)"
     $urls.run = "$($codehost.powerappsruntime)"
+
 
     $url = $urls.$area
     
@@ -167,6 +209,22 @@ function Self($root) {
     
 }
 
+function Home() {
+    $self = "$PSScriptRoot"
+    
+    Push-Location $self
+    
+}
+
+function GoDataEnv() {
+    
+    
+    Push-Location     ([System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::CommonApplicationData)+ "\hexatown.com\") 
+    
+}
+
+
+
 function OpenEnv($name) {
     $environmentPath = ([System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::CommonApplicationData)) 
     $appdir = $environmentPath + "\hexatown.com\"+ $name
@@ -215,14 +273,20 @@ function GetInstance($instanceFile) {
     }
         
 }
+
+function Show-Hexatown-Version(){
+Write-Host "hexatown.com " -ForegroundColor Green -NoNewline
+Show-Hexatown-CLIVersion
+}
+
 <#********************************************************************************************
 
 
 **********************************************************************************************
 #>
 
-Write-Host "hexatown.com " -ForegroundColor Green -NoNewline
-Write-Host "version 0.1.2" -ForegroundColor:DarkGray
+
+
 
 
 $path = Get-Location
@@ -246,9 +310,13 @@ if ($null -eq $arg0) {
 
 $command = $arg0.toUpper()
 switch ($command) {
+    VERSION { Show-Hexatown-Version }
     HELP { ShowHelp $arg1 }
     INIT { Init $path $arg1 }
     SELF { Self $path  }
+    HOME { Home }
+    DATA { GoDataEnv}
+    POP  { Pop-Location }
     Default {
         
 
@@ -267,7 +335,7 @@ switch ($command) {
         $project = Get-Content $projectFile | ConvertFrom-Json
         
         switch ($command) {
-            EDITOR { Editor $path  }
+            EDIT { Editor $path  }
             ENV  { OpenEnv $project.name }
             PACK { 
                 Write-Host "Packing $($project.name)"
