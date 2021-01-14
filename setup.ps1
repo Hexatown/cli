@@ -168,14 +168,7 @@ param (
   $downloader.DownloadFile($url, $file)
 }
 
-$url = "https://blob.jumpto365.com/hexatown/hexatown.zip?v=5"
-if ($url -eq $null -or $url -eq '') {
-  Write-Output "Getting latest version of the Hexatown package for download."
-  $url = "https://jumpto36500001.blob.core.windows.net/hexatown/hexatown.xml"
-  ##$url = 'https://hexatown.com/api/v2/Packages()?$filter=((Id%20eq%20%27hexatown%27)%20and%20(not%20IsPrerelease))%20and%20IsLatestVersion'
-  [xml]$result = Download-String $url
-  $url = $result.feed.entry.content.src
-}
+$url = "https://github.com/Hexatown/cli/raw/main/hexatown.zip"
 
 # Download the Hexatown package
 Write-Output "Getting Hexatown from $url."
@@ -243,36 +236,12 @@ if ($unzipMethod -eq '7zip') {
 # Call hexatown install
 Write-Output "Installing hexatown on this machine"
 
- Invoke-Expression "explorer $tempDir"
-#TODO Everything after this
-exit 
+#TODO Hide in prod
+Invoke-Expression "explorer $tempDir"
+
+
 
 
 $hexaInstallPS1 = Join-Path $tempDir "hexatownInstall.ps1"
 
 & $hexaInstallPS1
-
-Write-Output 'Ensuring hexatown commands are on the path'
-$hexaInstallVariableName = "HexatownInstall"
-$chocoPath = [Environment]::GetEnvironmentVariable($hexaInstallVariableName)
-if ($chocoPath -eq $null -or $chocoPath -eq '') {
-  $chocoPath = "$env:ALLUSERSPROFILE\Hexatown"
-}
-
-if (!(Test-Path ($chocoPath))) {
-  $chocoPath = "$env:SYSTEMDRIVE\ProgramData\Hexatown"
-}
-
-$chocoExePath = Join-Path $chocoPath 'bin'
-
-if ($($env:Path).ToLower().Contains($($chocoExePath).ToLower()) -eq $false) {
-  $env:Path = [Environment]::GetEnvironmentVariable('Path',[System.EnvironmentVariableTarget]::Machine);
-}
-<# Don't like to have a backdoor here
-Write-Output 'Ensuring hexatown.nupkg is in the lib folder'
-$chocoPkgDir = Join-Path $chocoPath 'lib\hexatown'
-$nupkg = Join-Path $chocoPkgDir 'hexatown.nupkg'
-if (![System.IO.Directory]::Exists($chocoPkgDir)) { [System.IO.Directory]::CreateDirectory($chocoPkgDir); }
-Copy-Item "$file" "$nupkg" -Force -ErrorAction SilentlyContinue
-
-#>
