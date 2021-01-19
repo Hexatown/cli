@@ -13,7 +13,7 @@ MIT Licensed
  
 
 function Read-Hexatown-Metadata() {
-    if (!Test-Path "$PSScriptRoot\package.json") {
+    if (!(Test-Path "$PSScriptRoot\package.json")) {
         return $null
     }
     return Get-Content -Path "$PSScriptRoot\package.json" -Raw  | ConvertFrom-Json
@@ -29,6 +29,18 @@ function Show-Hexatown-CLIVersion() {
     Write-Host "version $($metadata.version)" -ForegroundColor:DarkGray
 }
 
+function Write-PowerBrick-HelpForPowerBrick(){
+                write-host "Support navigation on the developer machine between different instances of Power*Bricks" -ForegroundColor Black -BackgroundColor White
+
+                Write-Host "hexatown powerbrick <task> [option] "  -ForegroundColor Green
+                Write-Host " "  
+            
+                Write-Host "hexatown powerbrick register  [alias] "  -NoNewline  -ForegroundColor Green
+                Write-Host "Register the current pack with an optional alias"
+
+                Write-Host "hexatown powerbrick push <name/alias> "  -NoNewline  -ForegroundColor Green
+                Write-Host "Change directory to the current Power*Pack based on name or alias"
+}
 
 function ShowHelp($forArgument) {
 
@@ -53,7 +65,9 @@ function ShowHelp($forArgument) {
         Write-Host "Change location to %appdata%"
         Write-Host "hexatown version                               "  -NoNewline  -ForegroundColor Green
         Write-Host "Show version"
-        Write-Host "hexatown powerbrick <action>                    "  -NoNewline  -ForegroundColor Green
+        Write-Host "hexatown powerbrick <action>                   "  -NoNewline  -ForegroundColor Green
+        Write-Host "Support PowerBrick registration on your local mackine"
+        Write-Host "hexatown pb <action>                           "  -NoNewline  -ForegroundColor Green
         Write-Host "Support PowerBrick registration on your local mackine"
 
 
@@ -61,22 +75,11 @@ function ShowHelp($forArgument) {
     }
     else {
         switch ($forArgument.toUpper()) {
-            PACK { write-host "You pack by ...." } 
-            
-            POWERBRICK {
-                write-host "Launch instance specific urls" -ForegroundColor Black -BackgroundColor White
-
-                Write-Host "hexatown powerbrick <destination> [instance] "  -ForegroundColor Green
-                Write-Host " "  
-            
-                Write-Host "hexatown powerbrick register  "  -NoNewline  -ForegroundColor Green
-                Write-Host "Register the current pack "
-
-                Write-Host "hexatown powerbrick push  "  -NoNewline  -ForegroundColor Green
-                Write-Host "Change directory to the current Power*Pack"
-            
-            
-            } 
+            PACK
+               { write-host "You pack by ...." } 
+            POWERBRICK 
+               { Write-PowerBrick-HelpForPowerBrick } 
+            PB { Write-PowerBrick-HelpForPowerBrick } 
             GO {
                 write-host "Launch instance specific urls" -ForegroundColor Black -BackgroundColor White
                 Write-Host "hexatown go <destination> [instance] "  -ForegroundColor Green
@@ -490,7 +493,7 @@ function Editor($root) {
 
 function Self($root) {
     $self = "$PSScriptRoot\hexatown.ps1"
-    
+    Home
     Invoke-Expression "ise ""$self"""    
     
     
@@ -568,21 +571,47 @@ function Show-Hexatown-Version() {
 
 
 
-function Get-Hexatown-powerbricks() {
+function Get-Hexatown-PowerBricks() {
     $pp = "$PSScriptRoot\powerbricks.json"
-    $powerbricks = @()
+    
+    
+    
     if (Test-Path($pp)) {
         $powerbricks = Get-Content -Path $pp -Raw  | ConvertFrom-Json
     }
-    if ($null -eq $powerbricks) { $powerbricks = @() }
-    return $powerbricks
+
+    if ($null -eq $powerbricks) { 
+    $returnValue = [System.Collections.ArrayList]@() 
+    }
+    else
+    {
+    
+    if ("Object[]" -ne  $powerbricks.GetType().Name) {
+        
+        write-host "converted returning new array"
+        [System.Collections.ArrayList]$returnValue = [System.Collections.ArrayList]::new()
+        $returnValue.Add($powerbricks)
+        
+        
+    }else{
+        $returnValue=  $powerbricks
+    }    
+    }    
+    
+     
+     write-host $returnValue | ConvertTo-Json 
+     
+    return $returnValue
 }
 
-function Get-Hexatown-powerbrick($name) {
-    $pp = "$PSScriptRoot\powerbricks.json"
-    $existing = $null
+function Get-Hexatown-PowerBrick($name) {
+    $powerbricks = Get-Hexatown-PowerBricks 
+    
     foreach ($powerbrick in $powerbricks) {
         if ($powerbrick.name -eq $name) {
+            $existing = $powerbrick
+        }        
+        if ($powerbrick.alias -eq $name) {
             $existing = $powerbrick
         }        
         
@@ -591,7 +620,8 @@ function Get-Hexatown-powerbrick($name) {
 }
 
 function Push-Hexatown-PowerBrickLocation($name) {
-    $powerBrick = Get-Hexatown-powerbrick $name
+    $powerBrick = Get-Hexatown-PowerBrick $name
+
     if ($null -eq $powerBrick) {
         write-host "powerbrick not found '$name'" -ForegroundColor Yellow
         return
@@ -603,22 +633,30 @@ function Push-Hexatown-PowerBrickLocation($name) {
 }
 
 function List-Hexatown-PowerBrickLocations() {
-    $pp = "$PSScriptRoot\powerbricks.json"
-    $powerbricks = @()
-    if (Test-Path($pp)) {
-        $powerbricks = Get-Content -Path $pp -Raw  | ConvertFrom-Json
-    }
-    if ($null -eq $powerbricks) { $powerbricks = @() }
-    write-host "PowerBricks" -ForegroundColor White -BackgroundColor Black
+$powerbricks = Get-Hexatown-PowerBricks 
+
     foreach ($powerbrick in $powerbricks) {
-        write-host $powerbrick.name -NoNewline -ForegroundColor Green
-        write-host $powerbrick.path -ForegroundColor DarkGreen
+        if ($null -ne $powerbrick.alias){
+            $name = "$($powerbrick.name) ($($powerbrick.alias))"
+        }else
+        {
+        $name = $powerbrick.name
+    }
+        write-host $name -ForegroundColor Yellow -NoNewline
+        write-host $powerbrick.path -ForegroundColor White
     }
 
 }
 
-function Register-Hexatown-powerbrick($path) {
-    $metadata = Read-Hexatown-powerbrickMetadata $path    
+function Show-Hexatown-CodeContext($invocation){
+
+
+    write-host "MyCommand>" $invocation.MyCommand "<"
+        # write-host (ConvertTo-Json -InputObject $invocation -depth 1)
+
+}
+function Register-Hexatown-PowerBrick($path,$alias) {
+    $metadata = Read-Hexatown-PowerBrickMetadata $path    
     if ($null -eq $metadata) {
         write-host "No project file at this location" -ForegroundColor Red
         return
@@ -626,44 +664,54 @@ function Register-Hexatown-powerbrick($path) {
 
 
 
-    $powerbricks = Get-Hexatown-powerbricks $PSScriptRoot
+    $powerbricks = Get-Hexatown-PowerBricks 
+    if ($null -eq $powerbricks) {
+        Show-Hexatown-CodeContext $MyInvocation
+        write-host "Fatal error loading PowerBricks repository" -ForegroundColor Red
+        write-host $PSScriptRoot -ForegroundColor Red
+        exit
+    }
     
+    write-host "returned" $powerbricks.GetType().Name 
     $existing = $false
     foreach ($powerbrick in $powerbricks) {
         if ($powerbrick.name -eq $metadata.name) {
+            write-host "Power*Brick with that name already registrated" -ForegroundColor Yellow
+            $existing = $true
+        }        
+        if ($null -ne $alias -and $powerbrick.alias -eq $alias) {
+            write-host "Power*Brick with that alias already registrated to '$($metadata.name)' at $($metadata.path) " -ForegroundColor Yellow
             $existing = $true
         }        
         
     }
     
     if ($existing ) {
-        write-host "powerbrick already registrated" -ForegroundColor Yellow
+        
         return
     }
 
-    $powerbricks += @{
+    write-host "before" $powerbricks.GetType().Name $powerbricks.Count
+    $powerbricks.Add(@{
         name = $metadata.name
         path = $path.Path
-    }
+    })
     $json = ConvertTo-Json -InputObject $powerbricks -Depth 2
     Out-File "$PSScriptRoot\powerbricks.json" -InputObject $json
 
 }
 
 function powerbrick($path, $arg1, $arg2) {
-    if ($null -eq $arg1) {
-        ShowErrorMessage "Missing argument "
-        write-host "use  'hexatown help powerbrick' for a list or arguments  "
-        return
-    }
+    if ($null -ne $arg1) {
     $command = $arg1.toUpper()
+    }
+    
     switch ($command) {
-        REGISTER { Register-Hexatown-powerbrick $path }
-        PUSH { Push-Hexatown-PowerBrickLocation $arg2 }
+        REGISTER { Register-Hexatown-PowerBrick $path arg2 }
+        GO { Push-Hexatown-PowerBrickLocation $arg2 }
         LIST { List-Hexatown-PowerBrickLocations }
         Default {
-            ShowErrorMessage "Unknown argument '$command' "
-            write-host "use  'hexatown help powerbrick' for a list or arguments  "
+            List-Hexatown-PowerBrickLocations
 
         }
 
@@ -709,6 +757,11 @@ switch ($command) {
     HOME { Home }
     DATA { GoDataEnv }
     POP { Pop-Location }
+    PB {
+        powerbrick $path $arg1 $arg2 
+                      
+
+    }
     POWERBRICK {
         powerbrick $path $arg1 $arg2 
                       
@@ -757,7 +810,6 @@ switch ($command) {
 
     }
 }
-
 
 
 
