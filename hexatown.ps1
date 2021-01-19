@@ -65,10 +65,12 @@ function ShowHelp($forArgument) {
         Write-Host "Change location to %appdata%"
         Write-Host "hexatown version                               "  -NoNewline  -ForegroundColor Green
         Write-Host "Show version"
+        Write-Host "hexatown demo                                  "  -NoNewline  -ForegroundColor Green
+        Write-Host "Run a demonstration"
         Write-Host "hexatown powerbrick <action>                   "  -NoNewline  -ForegroundColor Green
-        Write-Host "Support PowerBrick registration on your local mackine"
+        Write-Host "Support PowerBrick registration on your local machine"
         Write-Host "hexatown pb <action>                           "  -NoNewline  -ForegroundColor Green
-        Write-Host "Support PowerBrick registration on your local mackine"
+        Write-Host "Support PowerBrick registration on your local machine"
 
 
 
@@ -719,6 +721,11 @@ function powerbrick($path, $arg1, $arg2) {
 
 }
 
+function Start-Hexatown-Demo(){
+
+
+}
+
 <#********************************************************************************************
 
 
@@ -750,6 +757,8 @@ if ($null -eq $arg0) {
 
 $command = $arg0.toUpper()
 switch ($command) {
+    DIR  { Invoke-Expression "explorer ." }
+    DEMO { Start-Hexatown-Demo $arg1}
     VERSION { Show-Hexatown-Version }
     HELP { ShowHelp $arg1 }
     INIT { Init $path $arg1 }

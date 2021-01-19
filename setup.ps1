@@ -237,7 +237,7 @@ if ($unzipMethod -eq '7zip') {
 Write-Output "Installing hexatown on this machine"
 
 #TODO Hide in prod
-Invoke-Expression "explorer $tempDir"
+# Invoke-Expression "explorer $tempDir"
 
 
 

@@ -5,6 +5,8 @@ $environmentPath = ([System.Environment]::GetFolderPath([System.Environment+Spec
 $appdir = $environmentPath + "\hexatown.com"
 $destdir = $environmentPath + "\hexatown.com\.hexatown"
 
+
+
 if (!(Test-Path $appdir)) {
     New-Item -ItemType Directory -Force -Path $appdir | Out-Null
 }
@@ -21,8 +23,10 @@ if (!$path.Contains($destdir)){
 
 
 Copy-Item "$PSScriptRoot\hexatown.ps1" -Destination $destdir
+Copy-Item "$PSScriptRoot\hxt.ps1" -Destination $destdir
 Copy-Item "$PSScriptRoot\hexatown.cmd" -Destination $destdir
 Copy-Item "$PSScriptRoot\package.json" -Destination $destdir
+Copy-Item "$PSScriptRoot\src" -Destination $destdir
 
-
-
+Push-Location $destdir
+. "./src/jobs/powershell/myteams.ps1"
