@@ -846,10 +846,10 @@ function Register-Hexatown-PowerBrick($path,$alias) {
     }
 
     write-host "before" $powerbricks.GetType().Name $powerbricks.Count
-    $powerbricks.Add(@{
+    $powerbricks += @{
         name = $metadata.name
         path = $path.Path
-    })
+    }
     $json = ConvertTo-Json -InputObject $powerbricks -Depth 2
     Out-File "$PSScriptRoot\powerbricks.json" -InputObject $json
 
