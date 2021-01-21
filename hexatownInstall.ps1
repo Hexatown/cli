@@ -22,11 +22,11 @@ if (!$path.Contains($destdir)){
 }
 
 
-Copy-Item "$PSScriptRoot\hexatown.ps1" -Destination $destdir
-Copy-Item "$PSScriptRoot\hxt.ps1" -Destination $destdir
-Copy-Item "$PSScriptRoot\hexatown.cmd" -Destination $destdir
-Copy-Item "$PSScriptRoot\package.json" -Destination $destdir
-Copy-Item "$PSScriptRoot\src" -Destination $destdir
+Copy-Item "$PSScriptRoot\hexatown.ps1" -Destination $destdir -Force
+Copy-Item "$PSScriptRoot\hxt.ps1" -Destination $destdir -Force
+Copy-Item "$PSScriptRoot\hexatown.cmd" -Destination $destdir -Force
+Copy-Item "$PSScriptRoot\package.json" -Destination $destdir -Force
+Copy-Item "$PSScriptRoot\src" -Destination $destdir -Force -Recurse
 
 Push-Location $destdir
 Write-Host "****************************************************************" -ForegroundColor White -BackgroundColor Black
