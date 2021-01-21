@@ -588,7 +588,7 @@ function Init($root, $packageNamePart1,$packageNamePart2,$packageNamePart3,$pack
         return
     }
 
-    $packageName  = $folderName.replace(' ', '-') 
+    $packageName  = $folderName.replace(' ', '-').ToLower()
     
     $packageFolder = Join-Path  $root.Path  $folderName 
     $tempFolder = Join-Path $packageFolder "temp"
@@ -641,7 +641,8 @@ function Init($root, $packageNamePart1,$packageNamePart2,$packageNamePart3,$pack
 function Editor($root) {
     $timerJob = "$root\run.ps1"
     $rootJob = "$root\src\jobs\powershell\index.ps1"
-    Invoke-Expression "ise ""$timerjob,$rootjob"""    
+    $helperJob = "$root\src\jobs\powershell\.hexatown.com.ps1"
+    Invoke-Expression "ise ""$helperJob,$timerjob,$rootjob"""    
     
     
 }
@@ -689,11 +690,9 @@ AADDOMAIN=xxxxxx.com
         $defaultValues | Out-File $envfile
         
     }
-    $path = "explorer $appdir"
-    Invoke-Expression $path
-  
-    $editor = "notepad $envfile"
-    Invoke-Expression $editor
+    
+    Invoke-Expression "explorer $appdir"
+    Invoke-Expression "ise $envfile"
     
 }
 
