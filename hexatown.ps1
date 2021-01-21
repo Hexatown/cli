@@ -23,6 +23,128 @@ function Read-Hexatown-PowerBrickMetadata($path) {
     return Get-Content -Path "$path\package.json" -Raw  | ConvertFrom-Json
 }
 
+# PowerShell v2/3 caches the output stream. Then it throws errors due
+# to the FileStream not being what is expected. Fixes "The OS handle's
+# position is not what FileStream expected. Do not use a handle
+# simultaneously in one FileStream and in Win32 code or another
+# FileStream."
+function Fix-PowerShellOutputRedirectionBug {
+  $poshMajorVerion = $PSVersionTable.PSVersion.Major
+
+  if ($poshMajorVerion -lt 4) {
+    try{
+      # http://www.leeholmes.com/blog/2008/07/30/workaround-the-os-handles-position-is-not-what-filestream-expected/ plus comments
+      $bindingFlags = [Reflection.BindingFlags] "Instance,NonPublic,GetField"
+      $objectRef = $host.GetType().GetField("externalHostRef", $bindingFlags).GetValue($host)
+      $bindingFlags = [Reflection.BindingFlags] "Instance,NonPublic,GetProperty"
+      $consoleHost = $objectRef.GetType().GetProperty("Value", $bindingFlags).GetValue($objectRef, @())
+      [void] $consoleHost.GetType().GetProperty("IsStandardOutputRedirected", $bindingFlags).GetValue($consoleHost, @())
+      $bindingFlags = [Reflection.BindingFlags] "Instance,NonPublic,GetField"
+      $field = $consoleHost.GetType().GetField("standardOutputWriter", $bindingFlags)
+      $field.SetValue($consoleHost, [Console]::Out)
+      [void] $consoleHost.GetType().GetProperty("IsStandardErrorRedirected", $bindingFlags).GetValue($consoleHost, @())
+      $field2 = $consoleHost.GetType().GetField("standardErrorWriter", $bindingFlags)
+      $field2.SetValue($consoleHost, [Console]::Error)
+    } catch {
+      Write-Output "Unable to apply redirection fix."
+    }
+  }
+}
+
+Fix-PowerShellOutputRedirectionBug
+
+# Attempt to set highest encryption available for SecurityProtocol.
+# PowerShell will not set this by default (until maybe .NET 4.6.x). This
+# will typically produce a message for PowerShell v2 (just an info
+# message though)
+try {
+  # Set TLS 1.2 (3072) as that is the minimum required by hexatown.com.
+  # Use integers because the enumeration value for TLS 1.2 won't exist
+  # in .NET 4.0, even though they are addressable if .NET 4.5+ is
+  # installed (.NET 4.5 is an in-place upgrade).
+  [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+} catch {
+  Write-Output 'Unable to set PowerShell to use TLS 1.2. This is required for contacting Hexatown as of 03 FEB 2020. https://hexatown.com/blog/remove-support-for-old-tls-versions. If you see underlying connection closed or trust errors, you may need to do one or more of the following: (1) upgrade to .NET Framework 4.5+ and PowerShell v3+, (2) Call [System.Net.ServicePointManager]::SecurityProtocol = 3072; in PowerShell prior to attempting installation, (3) specify internal Hexatown package location (set $env:hexatownDownloadUrl prior to install or host the package internally), (4) use the Download + PowerShell method of install. See https://hexatown.com/docs/installation for all install options.'
+}
+
+function Get-Downloader {
+param (
+  [string]$url
+ )
+
+  $downloader = new-object System.Net.WebClient
+
+  $defaultCreds = [System.Net.CredentialCache]::DefaultCredentials
+  if ($defaultCreds -ne $null) {
+    $downloader.Credentials = $defaultCreds
+  }
+
+  $ignoreProxy = $env:hexatownIgnoreProxy
+  if ($ignoreProxy -ne $null -and $ignoreProxy -eq 'true') {
+    Write-Debug "Explicitly bypassing proxy due to user environment variable"
+    $downloader.Proxy = [System.Net.GlobalProxySelection]::GetEmptyWebProxy()
+  } else {
+    # check if a proxy is required
+    $explicitProxy = $env:hexatownProxyLocation
+    $explicitProxyUser = $env:hexatownProxyUser
+    $explicitProxyPassword = $env:hexatownProxyPassword
+    if ($explicitProxy -ne $null -and $explicitProxy -ne '') {
+      # explicit proxy
+      $proxy = New-Object System.Net.WebProxy($explicitProxy, $true)
+      if ($explicitProxyPassword -ne $null -and $explicitProxyPassword -ne '') {
+        $passwd = ConvertTo-SecureString $explicitProxyPassword -AsPlainText -Force
+        $proxy.Credentials = New-Object System.Management.Automation.PSCredential ($explicitProxyUser, $passwd)
+      }
+
+      Write-Debug "Using explicit proxy server '$explicitProxy'."
+      $downloader.Proxy = $proxy
+
+    } elseif (!$downloader.Proxy.IsBypassed($url)) {
+      # system proxy (pass through)
+      $creds = $defaultCreds
+      if ($creds -eq $null) {
+        Write-Debug "Default credentials were null. Attempting backup method"
+        $cred = get-credential
+        $creds = $cred.GetNetworkCredential();
+      }
+
+      $proxyaddress = $downloader.Proxy.GetProxy($url).Authority
+      Write-Debug "Using system proxy server '$proxyaddress'."
+      $proxy = New-Object System.Net.WebProxy($proxyaddress)
+      $proxy.Credentials = $creds
+      $downloader.Proxy = $proxy
+    }
+  }
+
+  return $downloader
+}
+
+function Download-String {
+param (
+  [string]$url
+ )
+  $downloader = Get-Downloader $url
+
+  return $downloader.DownloadString($url)
+}
+
+function Download-File {
+param (
+  [string]$url,
+  [string]$file
+ )
+  #Write-Output "Downloading $url to $file"
+  $downloader = Get-Downloader $url
+
+  $downloader.DownloadFile($url, $file)
+}
+
+#$url = "https://github.com/Hexatown/cli/raw/main/hexatown.zip"
+
+# Download the Hexatown package
+#Write-Output "Getting Hexatown from $url."
+
+
 function Show-Hexatown-CLIVersion() {
 
     $metadata = Read-Hexatown-Metadata
@@ -30,21 +152,26 @@ function Show-Hexatown-CLIVersion() {
 }
 
 function Write-PowerBrick-HelpForPowerBrick(){
-                write-host "Support navigation on the developer machine between different instances of Power*Bricks" -ForegroundColor Black -BackgroundColor White
+                write-host "Options for hexatown powerbrick"
+                Write-Host " "
+               # write-host "Support navigation on the developer machine between different instances of Power*Bricks"# -ForegroundColor Black -BackgroundColor White
 
-                Write-Host "hexatown powerbrick <task> [option] "  -ForegroundColor Green
-                Write-Host " "  
-            
-                Write-Host "hexatown powerbrick register  [alias] "  -NoNewline  -ForegroundColor Green
+                Write-Host "hexatown powerbrick <task> [option]   "  # -NoNewline  -ForegroundColor Green
+                write-host "Support navigation on the developer machine between different instances of Power*Bricks"# -ForegroundColor Black -BackgroundColor White
+                Write-Host " "            
+                Write-Host "hexatown powerbrick register <alias>  "  -NoNewline  -ForegroundColor Green
                 Write-Host "Register the current pack with an optional alias"
 
-                Write-Host "hexatown powerbrick push <name/alias> "  -NoNewline  -ForegroundColor Green
+                Write-Host "hexatown powerbrick list              "  -NoNewline  -ForegroundColor Green
+                Write-Host "List PowerPacks locally registered"
+
+                Write-Host "hexatown powerbrick go <name/alias>   "  -NoNewline  -ForegroundColor Green
                 Write-Host "Change directory to the current Power*Pack based on name or alias"
 }
 
 function ShowHelp($forArgument) {
 
-    Write-Host "Help" 
+    #Write-Host "Help" 
 
     if ($null -eq $forArgument) {
         Write-Host "General help" 
@@ -450,19 +577,30 @@ function Pack($root) {
   
 }
 
-function Init($root, $packageName) {
-    if ($null -eq $packageName ) {
+function Init($root, $packageNamePart1,$packageNamePart2,$packageNamePart3,$packageNamePart4) {
+    $folderName = $packageNamePart1
+    if ($null -ne $packageNamePart2){$folderName += " $packageNamePart2"}
+    if ($null -ne $packageNamePart3){$folderName  += " $packageNamePart3"}
+    if ($null -ne $packageNamePart4){$folderName  += " $packageNamePart4"}
+
+    if ($null -eq $folderName  ) {
         ShowErrorMessage "Missing project name"
         return
     }
 
-    $packagefile = $root.Path + "\package.json"
+    $packageName  = $folderName.replace(' ', '-') 
     
-    if ((Test-Path $packagefile )) {
-        ShowErrorMessage "Project have already been created"
+    $packageFolder = Join-Path  $root.Path  $folderName 
+    $tempFolder = Join-Path $packageFolder "temp"
+    $packagefile = Join-Path  $packageFolder "package.json"
+    
+    if ((Test-Path $packageFolder )) {
+        ShowErrorMessage "A folder with that name already exists"
         return
     }
-    
+    New-Item -Path $root.Path -Name $folderName -ItemType "directory" | Out-Null
+    New-Item -Path $packageFolder -Name "temp" -ItemType "directory" | Out-Null
+
     $defaultValues = @"
 {
   "name": "$packageName",
@@ -480,9 +618,24 @@ function Init($root, $packageName) {
 
 "@
     $defaultValues | Out-File $packagefile
-        
-    write-host "Project file created" -ForegroundColor DarkGreen
+    Set-Location $packageFolder    
+    $file = Join-Path $tempFolder "template.zip"
+
+    Download-File "https://github.com/Hexatown/templates/archive/main.zip" $file
     
+    Expand-Archive -Path "$file" -DestinationPath $tempFolder -Force 
+    Copy-Item "$tempFolder\templates-main\*"  -Destination $packageFolder -Force -Recurse
+    Remove-Item -Path $tempFolder -Force -Recurse 
+    
+    $srcPath = Join-Path $packageFolder "src"
+    $jobsPath = Join-Path $srcPath "jobs"
+    $powershelljobsPath = Join-Path $jobsPath "powershell"
+    $hexatownHelperFile = Join-Path $powershelljobsPath ".hexatown.com.ps1"
+    Download-File "https://raw.githubusercontent.com/Hexatown/core/master/src/jobs/powershell/.hexatown.com.ps1" $hexatownHelperFile
+    
+    write-host "Project file created" -ForegroundColor DarkGreen
+    OpenEnv $packageName
+    Editor $packageFolder    
 }
 
 function Editor($root) {
@@ -713,7 +866,12 @@ function powerbrick($path, $arg1, $arg2) {
         GO { Push-Hexatown-PowerBrickLocation $arg2 }
         LIST { List-Hexatown-PowerBrickLocations }
         Default {
-            List-Hexatown-PowerBrickLocations
+            Write-Host "Unknown command " -NoNewline -ForegroundColor Red
+            Write-Host $command -ForegroundColor Yellow
+            
+            ShowHelp "Powerbrick"
+
+            
 
         }
 
@@ -761,7 +919,7 @@ switch ($command) {
     DEMO { Start-Hexatown-Demo $arg1}
     VERSION { Show-Hexatown-Version }
     HELP { ShowHelp $arg1 }
-    INIT { Init $path $arg1 }
+    INIT { Init $path $arg1 $arg2 $arg3 }
     SELF { Self $path }
     HOME { Home }
     DATA { GoDataEnv }
