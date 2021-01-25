@@ -952,7 +952,7 @@ $master = ((new-object net.webclient).DownloadString('https://raw.githubusercont
 
                     if ($null -ne $diff) {
       #                  $helper.VersionInfo.FileName 
-      #                  $diff | ft
+                        $diff | ft
                         write-host "Updating $($project.name)  $($helper.VersionInfo.FileName) "
                         Out-File $helper.VersionInfo.FileName -InputObject $master 
                     }
@@ -979,7 +979,36 @@ if ($null -ne $brick){
 
 }
 
+function appendToArchive($pattern, $destFile){
+    if (test-path $pattern) {
+    
+    Compress-Archive -LiteralPath $pattern -DestinationPath $destFile   -Update | Out-Null
+    }
+}
 
+function New-TemporaryDirectory {
+    $parent = [System.IO.Path]::GetTempPath()
+    [string] $name = [System.Guid]::NewGuid()
+    New-Item -ItemType Directory -Path (Join-Path $parent $name) 
+}
+function ZipEnv(){
+
+$envPath = ([System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::CommonApplicationData) + "\hexatown.com\") 
+
+
+$tempDir =  New-TemporaryDirectory
+$destFile  = Join-Path (Get-Location) "hexatown.env.zip"
+
+Invoke-Expression "robocopy ""$envPath"" ""$tempDir/hexatown.com"" /s /xf *.json /xf *.log /xf *.csv /xf *.txt /xf *.xml /xd .hexatown /np /ndl"
+# Push-Location $tempDir
+
+
+Compress-Archive  -LiteralPath "$tempDir/hexatown.com" -DestinationPath $destFile   -Force 
+   
+
+
+
+}
 <#********************************************************************************************
 
 
@@ -1021,6 +1050,7 @@ switch ($command) {
     DATA { GoDataEnv }
     POP { Pop-Location }
     INSTALL { Install}
+    ZIPENV { ZipEnv }
     PB {
         powerbrick $path $arg1 $arg2 
                       
