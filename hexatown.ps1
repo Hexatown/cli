@@ -194,6 +194,8 @@ function ShowHelp($forArgument) {
         Write-Host "Show version"
         Write-Host "hexatown demo                                  "  -NoNewline  -ForegroundColor Green
         Write-Host "Run a demonstration"
+        Write-Host "hexatown install                               "  -NoNewline  -ForegroundColor Green
+        Write-Host "Update HEXATOWN helper to latest version       "
         Write-Host "hexatown powerbrick <action>                   "  -NoNewline  -ForegroundColor Green
         Write-Host "Support PowerBrick registration on your local machine"
         Write-Host "hexatown pb <action>                           "  -NoNewline  -ForegroundColor Green
@@ -883,7 +885,10 @@ function Start-Hexatown-Demo(){
 
 }
 
-function PushHelperFileChanges($master) {
+function PushHelperFileChanges() {
+$master = ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/Hexatown/core/master/src/jobs/powershell/.hexatown.com.ps1'))
+
+
     $projects = get-childitem -Path $root -Directory
 
     # $master = Get-Content "$PSScriptRoot\.hexatown.com.ps1" 
@@ -894,18 +899,23 @@ function PushHelperFileChanges($master) {
         $projectPath = $project.path
         if (Test-Path "$projectPath/package.json") {
         
-            $projectconfig = loadFromJSON $projectPath "package"
+            
+
+             $projectconfig = Get-Content (Join-Path $projectPath "package.json")  -Raw | ConvertFrom-Json 
+
             if (!$projectconfig.hexatown.isMaster) {
              
 
                 $helpers = Get-ChildItem -Path "$projectPath/*.ps1"  -Recurse | Where-Object Name -eq ".hexatown.com.ps1" 
                 foreach ($helper in $helpers) {
-                
-                    $slave = Get-Content $helper.VersionInfo.FileName 
+                 
+                    $slave = Get-Content $helper.VersionInfo.FileName  -Raw
                 
                     $diff = Compare-Object -ReferenceObject $master -DifferenceObject $slave
 
                     if ($null -ne $diff) {
+                        $helper.VersionInfo.FileName 
+                        $diff | ft
                         write-host "Updating $($project.name)  $($helper.VersionInfo.FileName) "
                         Out-File $helper.VersionInfo.FileName -InputObject $master 
                     }
@@ -916,6 +926,57 @@ function PushHelperFileChanges($master) {
             }
         }
     }
+}
+
+function PushHelperFileChange($projectPath) {
+$master = ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/Hexatown/core/master/src/jobs/powershell/.hexatown.com.ps1'))
+
+
+        
+        
+        if (Test-Path "$projectPath/package.json") {
+        
+            
+
+             $projectconfig = Get-Content (Join-Path $projectPath "package.json")  -Raw | ConvertFrom-Json 
+
+            if (!$projectconfig.hexatown.isMaster) {
+             
+
+                $helpers = Get-ChildItem -Path "$projectPath/*.ps1"  -Recurse | Where-Object Name -eq ".hexatown.com.ps1" 
+                foreach ($helper in $helpers) {
+                 
+                    $slave = Get-Content $helper.VersionInfo.FileName  -Raw
+                
+                    $diff = Compare-Object -ReferenceObject $master -DifferenceObject $slave
+
+                    if ($null -ne $diff) {
+      #                  $helper.VersionInfo.FileName 
+      #                  $diff | ft
+                        write-host "Updating $($project.name)  $($helper.VersionInfo.FileName) "
+                        Out-File $helper.VersionInfo.FileName -InputObject $master 
+                    }
+
+             
+                }
+
+            }
+        }
+
+}
+
+function Install(){
+
+$brick = Read-Hexatown-PowerBrickMetadata  (Get-Location)
+if ($null -ne $brick){
+
+    PushHelperFileChange (Get-Location)
+
+}else{
+
+    write-host "No PowerBrick in this directory" -ForegroundColor Yellow 
+}
+
 }
 
 
@@ -959,6 +1020,7 @@ switch ($command) {
     HOME { Home }
     DATA { GoDataEnv }
     POP { Pop-Location }
+    INSTALL { Install}
     PB {
         powerbrick $path $arg1 $arg2 
                       
