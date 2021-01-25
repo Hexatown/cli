@@ -883,6 +883,42 @@ function Start-Hexatown-Demo(){
 
 }
 
+function PushHelperFileChanges($master) {
+    $projects = get-childitem -Path $root -Directory
+
+    # $master = Get-Content "$PSScriptRoot\.hexatown.com.ps1" 
+    $projects = Get-Hexatown-PowerBricks
+    foreach ($project in $projects) {
+
+        
+        $projectPath = $project.path
+        if (Test-Path "$projectPath/package.json") {
+        
+            $projectconfig = loadFromJSON $projectPath "package"
+            if (!$projectconfig.hexatown.isMaster) {
+             
+
+                $helpers = Get-ChildItem -Path "$projectPath/*.ps1"  -Recurse | Where-Object Name -eq ".hexatown.com.ps1" 
+                foreach ($helper in $helpers) {
+                
+                    $slave = Get-Content $helper.VersionInfo.FileName 
+                
+                    $diff = Compare-Object -ReferenceObject $master -DifferenceObject $slave
+
+                    if ($null -ne $diff) {
+                        write-host "Updating $($project.name)  $($helper.VersionInfo.FileName) "
+                        Out-File $helper.VersionInfo.FileName -InputObject $master 
+                    }
+
+             
+                }
+
+            }
+        }
+    }
+}
+
+
 <#********************************************************************************************
 
 
