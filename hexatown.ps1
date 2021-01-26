@@ -188,8 +188,10 @@ function ShowHelp($forArgument) {
         Write-Host "Change to the last location on stack "
         Write-Host "hexatown self                                  "  -NoNewline  -ForegroundColor Green
         Write-Host "Open the CLI code in editor"
+        Write-Host "hexatown src                                   "  -NoNewline  -ForegroundColor Green
+        Write-Host "Change location to {pb}/src/jobs/powershell    "
         Write-Host "hexatown data                                  "  -NoNewline  -ForegroundColor Green
-        Write-Host "Change location to %appdata%"
+        Write-Host "Open explorer in env default data folder"
         Write-Host "hexatown version                               "  -NoNewline  -ForegroundColor Green
         Write-Host "Show version"
         Write-Host "hexatown demo                                  "  -NoNewline  -ForegroundColor Green
@@ -636,6 +638,7 @@ function Init($root, $packageNamePart1,$packageNamePart2,$packageNamePart3,$pack
     Download-File "https://raw.githubusercontent.com/Hexatown/core/master/src/jobs/powershell/.hexatown.com.ps1" $hexatownHelperFile
     
     write-host "Project file created" -ForegroundColor DarkGreen
+
     OpenEnv $packageName
     Editor $packageFolder    
 }
@@ -665,8 +668,9 @@ function Home() {
 }
 
 function GoDataEnv() {
-    
-    
+    ## TODO Load .env file and open Explerer in data path
+    write-error "Not implemented"
+    exit
     Push-Location     ([System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::CommonApplicationData) + "\hexatown.com\") 
     
 }
@@ -677,11 +681,17 @@ function OpenEnv($name) {
     $environmentPath = ([System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::CommonApplicationData)) 
     $appdir = $environmentPath + "\hexatown.com\" + $name
     $envfile = $environmentPath + "\hexatown.com\" + $name + "\.env"
+    $defaultenvfile = $environmentPath + "\hexatown.com\.default\.env"
+
     write-host $appdir 
     if (!(Test-Path $appdir)) {
         New-Item -ItemType Directory -Force -Path $appdir
     }
     if (!(Test-Path $envfile )) {
+
+        if (Test-Path $defaultenvfile){
+        $defaultValues = Get-Content -Path $defaultenvfile -raw
+        }else{
         $defaultValues = @"
 APPCLIENT_ID=
 APPCLIENT_SECRET=
@@ -689,12 +699,18 @@ APPCLIENT_DOMAIN=
 SITEURL=https://xxxxxxx.sharepoint.com/sites/hexatown
 AADDOMAIN=xxxxxx.com
 "@
+}
         $defaultValues | Out-File $envfile
         
     }
     
     Invoke-Expression "explorer $appdir"
     Invoke-Expression "ise $envfile"
+    
+}
+
+function OpenSrc($path) {
+    Push-Location "$path\src\jobs\powershell"
     
 }
 
@@ -762,8 +778,12 @@ function Get-Hexatown-PowerBricks() {
 
 function Get-Hexatown-PowerBrick($name) {
     $powerbricks = Get-Hexatown-PowerBricks 
-    
+    $counter = 0
     foreach ($powerbrick in $powerbricks) {
+        $counter ++
+        if ($name -eq $counter){
+            $existing = $powerbrick
+        }
         if ($powerbrick.name -eq $name) {
             $existing = $powerbrick
         }        
@@ -790,18 +810,25 @@ function Push-Hexatown-PowerBrickLocation($name) {
 
 function List-Hexatown-PowerBrickLocations() {
 $powerbricks = Get-Hexatown-PowerBricks 
-
+    $counter = 0
     foreach ($powerbrick in $powerbricks) {
+        $counter++
         if ($null -ne $powerbrick.alias){
             $name = "$($powerbrick.name) ($($powerbrick.alias))"
         }else
         {
         $name = $powerbrick.name
     }
-        write-host $name -ForegroundColor Yellow -NoNewline
+        write-host ("{0,3}" -f $counter) "" -ForegroundColor Yellow -NoNewline
+        write-host "$name $(' '* (30-$name.Length))"   "" -ForegroundColor Yellow -NoNewline
         write-host $powerbrick.path -ForegroundColor White
     }
 
+    write-host ""
+    write-host "Hint:"
+    Write-Host "You can change the location to a given PowerBrick by writting" -ForegroundColor Green
+    Write-Host "hexatown powerbrick go 1         " -ForegroundColor Yellow -NoNewline ; Write-Host "Change PowerBrick #1"
+    Write-Host "hxt pb go 1                      " -ForegroundColor Yellow -NoNewline ; Write-Host "Does the same"
 }
 
 function Show-Hexatown-CodeContext($invocation){
@@ -859,7 +886,13 @@ function Register-Hexatown-PowerBrick($path,$alias) {
 
 function powerbrick($path, $arg1, $arg2) {
     if ($null -ne $arg1) {
-    $command = $arg1.toUpper()
+        $typeName = $arg1.GetType().Name
+        if ($typeName -eq "Int32") { 
+        
+            Push-Hexatown-PowerBrickLocation $arg1
+            return
+        }
+        $command = $arg1.toUpper()
     }
     
     switch ($command) {
@@ -871,6 +904,10 @@ function powerbrick($path, $arg1, $arg2) {
             Write-Host $command -ForegroundColor Yellow
             
             ShowHelp "Powerbrick"
+            write-host ""
+            write-host "Anyhow, you might like a list of current PowerBricks"
+            write-host "So here they are ..."
+            List-Hexatown-PowerBrickLocations
 
             
 
@@ -1083,6 +1120,7 @@ switch ($command) {
         
         switch ($command) {
             EDIT { Editor $path }
+            SRC { OpenSrc $path }
             ENV { OpenEnv $project.name }
             PACK { 
                 Write-Host "Packing $($project.name)"
