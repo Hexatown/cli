@@ -21,6 +21,7 @@ if (!$path.Contains($destdir)){
     [Environment]::SetEnvironmentVariable("path","$path; $destdir","User")
 }
 
+Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser -Force:$true
 
 Copy-Item "$PSScriptRoot\hexatown.ps1" -Destination $destdir -Force
 Copy-Item "$PSScriptRoot\h.ps1" -Destination $destdir -Force
