@@ -1,4 +1,4 @@
-<#
+﻿<#
 HEXATOWN CLI
 ------------
 Copyright 2021 Niels Gregers Johansen
@@ -151,29 +151,53 @@ function Show-Hexatown-CLIVersion() {
     Write-Host "version $($metadata.version)" -ForegroundColor:DarkGray
 }
 
+function Show-Hexatown-Header() {
+
+    Write-Host "         "  -ForegroundColor:Yellow  -NoNewline 
+    Write-Host "     "  -ForegroundColor:Green -NoNewline  -BackgroundColor DarkGreen
+    Write-Host " "  -ForegroundColor:Yellow -NoNewline -BackgroundColor DarkGreen
+    Write-Host "         "  -ForegroundColor:Green -NoNewline  -BackgroundColor DarkGreen
+    Write-Host "        "  -ForegroundColor:Yellow
+     
+    Write-Host "HEXATOWN "  -ForegroundColor:Yellow  -NoNewline 
+    Write-Host " Power"  -ForegroundColor:Green -NoNewline  -BackgroundColor DarkGreen
+    Write-Host "⚙️"  -ForegroundColor:Yellow -NoNewline -BackgroundColor DarkGreen
+    Write-Host "Bricks "  -ForegroundColor:Green -NoNewline  -BackgroundColor DarkGreen
+    Write-Host " Manager"  -ForegroundColor:Yellow
+
+    Write-Host "         "  -ForegroundColor:Yellow  -NoNewline 
+    Write-Host "     "  -ForegroundColor:Green -NoNewline  -BackgroundColor DarkGreen
+    Write-Host " "  -ForegroundColor:Yellow -NoNewline -BackgroundColor DarkGreen
+    Write-Host "         "  -ForegroundColor:Green -NoNewline  -BackgroundColor DarkGreen
+    Write-Host "        "  -ForegroundColor:Yellow
+
+}
 function Write-PowerBrick-HelpForPowerBrick(){
                 write-host "Options for hexatown powerbrick"
                 Write-Host " "
-               # write-host "Support navigation on the developer machine between different instances of Power*Bricks"# -ForegroundColor Black -BackgroundColor White
+               # write-host "Support navigation on the developer machine between different instances of Power⚙️Bricks"# -ForegroundColor Black -BackgroundColor White
 
                 Write-Host "hexatown powerbrick <task> [option]   "  # -NoNewline  -ForegroundColor Green
-                write-host "Support navigation on the developer machine between different instances of Power*Bricks"# -ForegroundColor Black -BackgroundColor White
+                write-host "Support navigation on the developer machine between different instances of Power⚙️Bricks"# -ForegroundColor Black -BackgroundColor White
                 Write-Host " "            
                 Write-Host "hexatown powerbrick register <alias>  "  -NoNewline  -ForegroundColor Green
-                Write-Host "Register the current pack with an optional alias"
+                Write-Host "Register the current Power⚙️Brick with an optional alias"
 
                 Write-Host "hexatown powerbrick list              "  -NoNewline  -ForegroundColor Green
-                Write-Host "List PowerPacks locally registered"
+                Write-Host "List Power⚙️Bricks locally registered"
 
                 Write-Host "hexatown powerbrick go <name/alias>   "  -NoNewline  -ForegroundColor Green
-                Write-Host "Change directory to the current Power*Pack based on name or alias"
+                Write-Host "Change directory to the current Power⚙️Brick based on name or alias"
 }
-
+Show-Hexatown-Header
 function ShowHelp($forArgument) {
 
     #Write-Host "Help" 
+    Show-Hexatown-Header
+    Show-Hexatown-CLIVersion
 
     if ($null -eq $forArgument) {
+
         Write-Host "General help" 
         
         Write-Host "hexatown go <destination> [instance]           "  -NoNewline  -ForegroundColor Green
@@ -855,7 +879,7 @@ function Register-Hexatown-PowerBrick($path,$alias) {
         exit
     }
     
-    write-host "returned" $powerbricks.GetType().Name 
+    # write-host "returned" $powerbricks.GetType().Name 
     $existing = $false
     foreach ($powerbrick in $powerbricks) {
         if ($powerbrick.name -eq $metadata.name) {
@@ -874,7 +898,9 @@ function Register-Hexatown-PowerBrick($path,$alias) {
         return
     }
 
-    write-host "before" $powerbricks.GetType().Name $powerbricks.Count
+#    write-host "before" $powerbricks.GetType().Name $powerbricks.Count
+    write-host "Power⚙️Brick added" -ForegroundColor Green
+
     $powerbricks += @{
         name = $metadata.name
         path = $path.Path
