@@ -189,7 +189,7 @@ function Write-PowerBrick-HelpForPowerBrick(){
                 Write-Host "hexatown powerbrick go <name/alias>   "  -NoNewline  -ForegroundColor Green
                 Write-Host "Change directory to the current Power⚙️Brick based on name or alias"
 }
-Show-Hexatown-Header
+
 function ShowHelp($forArgument) {
 
     #Write-Host "Help" 
@@ -728,7 +728,8 @@ AADDOMAIN=xxxxxx.com
         
     }
     
-    Invoke-Expression "explorer $appdir"
+    # Invoke-Expression "explorer $appdir"
+    Push-Location $appdir
     Invoke-Expression "ise $envfile"
     
 }
@@ -1071,7 +1072,32 @@ Compress-Archive  -LiteralPath "$tempDir/hexatown.com" -DestinationPath $destFil
 
 
 
+
 }
+
+function Start-Hexatown-PowerBrick($alias,$arg1,$arg2,$arg3, $arg4, $arg5){
+   
+   $pb = Get-Hexatown-PowerBrick $alias
+   if ($null -eq $pb){
+        write-host "PowerBrick not found" -ForegroundColor Red
+        return
+   }
+   
+#  write-host "Starting $($pb.name)" -ForegroundColor Green
+#  write-host "Starting $($pb.path)" -ForegroundColor Green
+
+   $filepath = Join-Path $pb.path "$arg1.ps1" 
+   if (!(Test-Path $filepath)){
+        write-host "Command not found '$arg1'" -ForegroundColor Red
+        return
+   }
+   
+   . $filepath $arg2 $arg3 $arg4 $arg5
+
+   
+
+}
+
 <#********************************************************************************************
 
 
@@ -1087,6 +1113,9 @@ $arg0 = $args[0]
 $arg1 = $args[1]
 $arg2 = $args[2]
 $arg3 = $args[3]
+$arg4 = $args[4]
+$arg5 = $args[5]
+$arg6 = $args[6]
 
 <#
 $path = "C:\hexatown.com\InfoCast"
@@ -1114,6 +1143,8 @@ switch ($command) {
     POP { Pop-Location }
     INSTALL { Install}
     ZIPENV { ZipEnv }
+    RUN  { Start-Hexatown-PowerBrick $arg1 $arg2 $arg3 $arg4 $arg5 $arg6 }
+
     PB {
         powerbrick $path $arg1 $arg2 
                       
