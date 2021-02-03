@@ -30,6 +30,7 @@ Copy-Item "$PSScriptRoot\t.ps1" -Destination $destdir -Force
 Copy-Item "$PSScriptRoot\hx.ps1" -Destination $destdir -Force
 Copy-Item "$PSScriptRoot\xt.ps1" -Destination $destdir -Force
 Copy-Item "$PSScriptRoot\hxt.ps1" -Destination $destdir -Force
+Copy-Item "$PSScriptRoot\hexa.ps1" -Destination $destdir -Force
 Copy-Item "$PSScriptRoot\hexatown.cmd" -Destination $destdir -Force
 Copy-Item "$PSScriptRoot\package.json" -Destination $destdir -Force
 Copy-Item "$PSScriptRoot\src" -Destination $destdir -Force -Recurse
