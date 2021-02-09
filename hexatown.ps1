@@ -173,20 +173,20 @@ function Show-Hexatown-Header() {
 
 }
 function Write-PowerBrick-HelpForPowerBrick(){
-                write-host "Options for hexatown powerbrick"
+                write-host "Options for hexa powerbrick"
                 Write-Host " "
                # write-host "Support navigation on the developer machine between different instances of Power⚙️Bricks"# -ForegroundColor Black -BackgroundColor White
 
-                Write-Host "hexatown powerbrick <task> [option]   "  # -NoNewline  -ForegroundColor Green
+                Write-Host "hexa powerbrick <task> [option]   "  # -NoNewline  -ForegroundColor Green
                 write-host "Support navigation on the developer machine between different instances of Power⚙️Bricks"# -ForegroundColor Black -BackgroundColor White
                 Write-Host " "            
-                Write-Host "hexatown powerbrick register <alias>  "  -NoNewline  -ForegroundColor Green
+                Write-Host "hexa powerbrick register <alias>  "  -NoNewline  -ForegroundColor Green
                 Write-Host "Register the current Power⚙️Brick with an optional alias"
 
-                Write-Host "hexatown powerbrick list              "  -NoNewline  -ForegroundColor Green
+                Write-Host "hexa powerbrick list              "  -NoNewline  -ForegroundColor Green
                 Write-Host "List Power⚙️Bricks locally registered"
 
-                Write-Host "hexatown powerbrick go <name/alias>   "  -NoNewline  -ForegroundColor Green
+                Write-Host "hexa powerbrick go <name/alias>   "  -NoNewline  -ForegroundColor Green
                 Write-Host "Change directory to the current Power⚙️Brick based on name or alias"
 }
 
@@ -200,31 +200,31 @@ function ShowHelp($forArgument) {
 
         Write-Host "General help" 
         
-        Write-Host "hexatown go <destination> [instance]           "  -NoNewline  -ForegroundColor Green
+        Write-Host "hexa go <destination> [instance]           "  -NoNewline  -ForegroundColor Green
         Write-Host "Navigate to <destination> in optional instance "
-        Write-Host "hexatown init <destination>                    "  -NoNewline  -ForegroundColor Green
+        Write-Host "hexa init <destination>                    "  -NoNewline  -ForegroundColor Green
         Write-Host "Create a project file "
-        Write-Host "hexatown env                                   "  -NoNewline  -ForegroundColor Green
+        Write-Host "hexa env                                   "  -NoNewline  -ForegroundColor Green
         Write-Host "Change location to the path of the current project env, creates an .env file is missing "
-        Write-Host "hexatown pack                                  "  -NoNewline  -ForegroundColor Green
+        Write-Host "hexa pack                                  "  -NoNewline  -ForegroundColor Green
         Write-Host "Create a package file "
-        Write-Host "hexatown pop                                   "  -NoNewline  -ForegroundColor Green
+        Write-Host "hexa pop                                   "  -NoNewline  -ForegroundColor Green
         Write-Host "Change to the last location on stack "
-        Write-Host "hexatown self                                  "  -NoNewline  -ForegroundColor Green
+        Write-Host "hexa self                                  "  -NoNewline  -ForegroundColor Green
         Write-Host "Open the CLI code in editor"
-        Write-Host "hexatown src                                   "  -NoNewline  -ForegroundColor Green
+        Write-Host "hexa src                                   "  -NoNewline  -ForegroundColor Green
         Write-Host "Change location to {pb}/src/jobs/powershell    "
-        Write-Host "hexatown data                                  "  -NoNewline  -ForegroundColor Green
+        Write-Host "hexa data                                  "  -NoNewline  -ForegroundColor Green
         Write-Host "Open explorer in env default data folder"
-        Write-Host "hexatown version                               "  -NoNewline  -ForegroundColor Green
+        Write-Host "hexa version                               "  -NoNewline  -ForegroundColor Green
         Write-Host "Show version"
-        Write-Host "hexatown demo                                  "  -NoNewline  -ForegroundColor Green
+        Write-Host "hexa demo                                  "  -NoNewline  -ForegroundColor Green
         Write-Host "Run a demonstration"
-        Write-Host "hexatown install                               "  -NoNewline  -ForegroundColor Green
+        Write-Host "hexa install                               "  -NoNewline  -ForegroundColor Green
         Write-Host "Update HEXATOWN helper to latest version       "
-        Write-Host "hexatown powerbrick <action>                   "  -NoNewline  -ForegroundColor Green
+        Write-Host "hexa powerbrick <action>                   "  -NoNewline  -ForegroundColor Green
         Write-Host "Support PowerBrick registration on your local machine"
-        Write-Host "hexatown pb <action>                           "  -NoNewline  -ForegroundColor Green
+        Write-Host "hexa pb <action>                           "  -NoNewline  -ForegroundColor Green
         Write-Host "Support PowerBrick registration on your local machine"
 
 
@@ -239,30 +239,30 @@ function ShowHelp($forArgument) {
             PB { Write-PowerBrick-HelpForPowerBrick } 
             GO {
                 write-host "Launch instance specific urls" -ForegroundColor Black -BackgroundColor White
-                Write-Host "hexatown go <destination> [instance] "  -ForegroundColor Green
+                Write-Host "hexa go <destination> [instance] "  -ForegroundColor Green
                 Write-Host " "  
             
-                Write-Host "hexatown go code       "  -NoNewline  -ForegroundColor Green
+                Write-Host "hexa go code       "  -NoNewline  -ForegroundColor Green
                 Write-Host "Navigate to Code+Test console"
-                Write-Host "hexatown go monitor    "  -NoNewline  -ForegroundColor Green
+                Write-Host "hexa go monitor    "  -NoNewline  -ForegroundColor Green
                 Write-Host "Navigate to Monitor console"
-                Write-Host "hexatown go kudo       "  -NoNewline  -ForegroundColor Green
+                Write-Host "hexa go kudo       "  -NoNewline  -ForegroundColor Green
                 Write-Host "Navigate to KUDO PowerShell debug console"
-                Write-Host "hexatown go insight    " -NoNewline  -ForegroundColor Green
+                Write-Host "hexa go insight    " -NoNewline  -ForegroundColor Green
                 Write-Host "Navigate to Insight Live Metrics"
-                Write-Host "hexatown go site       " -NoNewline  -ForegroundColor Green
+                Write-Host "hexa go site       " -NoNewline  -ForegroundColor Green
                 Write-Host "Navigate to Azure App Site"
-                Write-Host "hexatown go func       " -NoNewline  -ForegroundColor Green
+                Write-Host "hexa go func       " -NoNewline  -ForegroundColor Green
                 Write-Host "Navigate to Azure App Site Functions Area"
-                Write-Host "hexatown go functions  " -NoNewline  -ForegroundColor Green
+                Write-Host "hexa go functions  " -NoNewline  -ForegroundColor Green
                 Write-Host "Navigate to Azure App Site Functions Area"
-                Write-Host "hexatown go sp         " -NoNewline  -ForegroundColor Green
+                Write-Host "hexa go sp         " -NoNewline  -ForegroundColor Green
                 Write-Host "Navigate to SharePoint site contents"
-                Write-Host "hexatown go sharepoint " -NoNewline  -ForegroundColor Green
+                Write-Host "hexa go sharepoint " -NoNewline  -ForegroundColor Green
                 Write-Host "Navigate to SharePoint site contents"
-                Write-Host "hexatown go edit       " -NoNewline  -ForegroundColor Green
+                Write-Host "hexa go edit       " -NoNewline  -ForegroundColor Green
                 Write-Host "Navigate to PowerApps studio"
-                Write-Host "hexatown go run        " -NoNewline  -ForegroundColor Green
+                Write-Host "hexa go run        " -NoNewline  -ForegroundColor Green
                 Write-Host "Run Primary PowerApps"
             
             } 
@@ -772,10 +772,22 @@ function Get-Hexatown-PowerBricks() {
     $pp = "$PSScriptRoot\powerbricks.json"
     
     
-    
-    if (Test-Path($pp)) {
-        $powerbricks = Get-Content -Path $pp -Raw  | ConvertFrom-Json
+    if (!(Test-Path $pp)) {
+        $default = @(
+        @{
+            name = "hexatown"
+            path = "C:\ProgramData\hexatown.com\.hexatown"
+        },
+        @{
+            name = "data"
+            path = "C:\ProgramData\hexatown.com"
+        }
+
+        ) | ConvertTo-Json
+        out-file  $pp -InputObject $default
     }
+    $powerbricks = Get-Content -Path $pp -Raw  | ConvertFrom-Json
+    
 
     if ($null -eq $powerbricks) { 
     $returnValue = [System.Collections.ArrayList]@() 
@@ -1129,6 +1141,16 @@ if ($null -eq $arg0) {
     Exit
 
 }
+
+$typeName = $arg0.GetType().Name
+if ($typeName -eq "Int32") { 
+        
+    Push-Hexatown-PowerBrickLocation $arg0
+    return
+}
+    
+
+
 
 $command = $arg0.toUpper()
 switch ($command) {
