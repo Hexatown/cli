@@ -1,2 +1,2 @@
 param($Timer)
-Invoke-Expression -Command "$PSScriptRoot\src\jobs\powershell\index.ps1"
+. "$PSScriptRoot\src\jobs\powershell\index.ps1"

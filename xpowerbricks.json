@@ -1,0 +1,55 @@
+﻿[
+    {
+        "name":  "push-sap-users",
+        "alias":  "sap",
+        "path":  "C:\\hexatown.com\\Push SAP Users"
+    },
+    {
+        "name":  "hexatown",
+        "path":  "C:\\ProgramData\\hexatown.com\\.hexatown"
+    },
+    {
+        "name":  "mailtips",
+        "path":  "C:\\Users\\ngjoh\\jumpto365\\hexatown.com - Power Bricks\\Mailtips"
+    },
+    {
+        "name":  "sync-webflow",
+        "path":  "C:\\Users\\ngjoh\\jumpto365\\hexatown.com - Power Bricks\\Sync Webflow"
+    },
+    {
+        "name":  "news-digests",
+        "path":  "C:\\Users\\ngjoh\\Nets Group\\Intranets Solution - PowerBricks\\News Digests"
+    },
+    {
+        "name":  "hexatown-helper",
+        "path":  "C:\\hexatown.com\\.hexatown.com"
+    },
+    {
+        "name":  "vizito-hosts",
+        "path":  "C:\\Users\\ngjoh\\Nets Group\\CAVA - PowerBricks\\Vizito Hosts"
+    },
+    {
+        "name":  "infocast",
+        "path":  "C:\\users\\ngjoh\\Nets Group\\InfoCast - Power Bricks\\InfoCast"
+    },
+    {
+        "name":  "speed-dating",
+        "path":  "C:\\Users\\ngjoh\\jumpto365\\hexatown.com - Power Bricks\\Speed Dating"
+    },
+    {
+        "name":  "junglemaps",
+        "path":  "C:\\Users\\ngjoh\\Nets Group\\Enterprise IT - PowerBricks\\JungleMaps"
+    },
+    {
+        "name":  "demo",
+        "path":  "C:\\Users\\ngjoh\\jumpto365\\hexatown.com - Power Bricks\\Demo"
+    },
+    {
+        "name":  "sensitivity-labels",
+        "path":  "C:\\Users\\ngjoh\\Nets Group\\Enterprise IT - PowerBricks\\sensitivity labels"
+    },
+    {
+        "name":  "devops",
+        "path":  "C:\\users\\ngjoh\\Nets Group\\Enterprise IT - PowerBricks\\devops"
+    }
+]
