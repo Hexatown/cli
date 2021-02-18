@@ -135,7 +135,19 @@ function Get-Hexatown-AccessTokenDeviceStepRefresh($client_id, $client_domain, $
     $headers.Add("Content-Type", "application/x-www-form-urlencoded")
     $body = "grant_type=refresh_token&client_id=$client_id&scope=$scope offline_access openid&refresh_token=$refresh_token"
     
-    $response = Invoke-RestMethod "https://login.microsoftonline.com/$client_domain/oauth2/v2.0/token" -Method 'POST' -Headers $headers -body $body
+    try
+    {
+        $response = Invoke-RestMethod "https://login.microsoftonline.com/$client_domain/oauth2/v2.0/token" -Method 'POST' -Headers $headers -body $body
+        
+    }
+    catch 
+    {
+        
+        $errorData  = ConvertFrom-Json $_ 
+        write-host $errorData.error_description -ForegroundColor Yellow
+        return $null
+    }
+    
     return $response
     
 }
@@ -144,6 +156,10 @@ function Get-Hexatown-AccessTokenDeviceStepRefresh($client_id, $client_domain, $
 function Get-Hexatown-Delegate($datapath,$scope){
 # $scope = "https%3A//graph.microsoft.com/.default"
 # $scope = "Team.ReadBasic.All User.ReadBasic.All "
+
+do
+{
+    
 
 $refreshTokenFilePath = "$datapath\$($hexatownAppId).refreshtoken.$scope.txt"
 if (!(Test-Path $refreshTokenFilePath)) {
@@ -167,12 +183,21 @@ else {
     
     $refreshToken =  Get-Content $refreshTokenFilePath -Raw
     $step2 = Get-Hexatown-AccessTokenDeviceStepRefresh $hexatownAppId $domainid $refreshToken 
-    $hexatownDelegate = @{
-        token = $step2.access_token
+
+    if ($null -ne $step2){
+        $hexatownDelegate = @{
+            token = $step2.access_token
+        }
+        return $step2.access_token
+    }else
+    {
+       Remove-Item $refreshTokenFilePath 
+    
     }
-    return $step2.access_token
 
 }
+}
+while ($true)
 }
 
 
@@ -1249,5 +1274,4 @@ ConvertTo-Json -InputObject $result   -Depth 10 | Out-File "$($hexatown.datapath
 }
 
     
-
 
