@@ -1275,6 +1275,7 @@ switch ($command) {
     HOME { Home }
     DATA { GoDataEnv }
     POP { Pop-Location }
+    INSTALLL { Update } ## Legacy
     UPDATE { Update }
     ZIPENV { ZipEnv }
     RUN  { Start-Hexatown-PowerBrick $arg1 $arg2 $arg3 $arg4 $arg5 $arg6 }
