@@ -220,13 +220,18 @@ function ShowHelp($forArgument) {
         Write-Host "Show version"
         Write-Host "hexa demo                                  "  -NoNewline  -ForegroundColor Green
         Write-Host "Run a demonstration"
-        Write-Host "hexa install                               "  -NoNewline  -ForegroundColor Green
+        Write-Host "hexa update                                "  -NoNewline  -ForegroundColor Green
         Write-Host "Update HEXATOWN helper to latest version       "
         Write-Host "hexa powerbrick <action>                   "  -NoNewline  -ForegroundColor Green
         Write-Host "Support PowerBrick registration on your local machine"
         Write-Host "hexa pb <action>                           "  -NoNewline  -ForegroundColor Green
         Write-Host "Support PowerBrick registration on your local machine"
-
+        Write-Host "hexa . arg1 arg2 arg3 arg4 ...             "  -NoNewline  -ForegroundColor Green
+        Write-Host "Register a dot command alias"
+        Write-Host "hexa .arg1                                 "  -NoNewline  -ForegroundColor Green
+        Write-Host "Execute a save command by alias"
+        Write-Host "hexa dotcmds                               "  -NoNewline  -ForegroundColor Green
+        Write-Host "List dot commands"
 
 
     }
@@ -1041,7 +1046,7 @@ $master = ((new-object net.webclient).DownloadString('https://raw.githubusercont
 
 }
 
-function Install(){
+function Update(){
 
 $brick = Read-Hexatown-PowerBrickMetadata  (Get-Location)
 if ($null -ne $brick){
@@ -1110,13 +1115,81 @@ function Start-Hexatown-PowerBrick($alias,$arg1,$arg2,$arg3, $arg4, $arg5){
 
 }
 
+$myDotCommandsFilePath =  Join-Path $PSScriptRoot "dotcommand.json"
+
+function getDotCmds(){
+
+    if (!(Test-Path $myDotCommandsFilePath)){
+        $structure = @{
+            version = 1
+            commands = @()
+        } 
+    }else {
+        
+        $structure = Get-Content -Path $myDotCommandsFilePath | ConvertFrom-Json
+    }
+    return $structure.commands
+}
+
+function listDotCmds(){
+    foreach ($command in (getDotCmds))
+    {
+        write-host $command.name $command.arg0 $command.arg1 $command.arg2 $command.arg3 $command.arg4 $command.arg5 $command.arg6
+    } 
+}
+
+
+function setDotCmd($name,$arg0,$arg1,$arg2,$arg3,$arg4,$arg5,$arg6){
+    $cmdName = ".$name"
+    foreach ($command in (getDotCmds))
+    {
+        if ($cmdName -eq $command.name){
+            write-host "Alias '$cmdName' already exists" -ForegroundColor Red
+            return
+        }
+    } 
+
+
+    $command = @{
+        name = $cmdName
+        arg0 = $arg0
+        arg1 = $arg1
+        arg2 = $arg2
+        arg3 = $arg3
+        arg4 = $arg4
+        arg5 = $arg5
+        arg6 = $arg6
+    }
+    $commands = getDotCmds 
+    $commands += $command
+    $structure = @{
+        version = 1
+        commands = $commands
+    } | ConvertTo-Json
+
+    out-file -FilePath $myDotCommandsFilePath -InputObject $structure
+
+    
+
+}
+
+function getDotCmd($name){
+    foreach ($command in (getDotCmds))
+    {
+        if ($name -eq $command.name){
+            return $command
+        }
+    } 
+
+}
+
+
+
 <#********************************************************************************************
 
 
 **********************************************************************************************
 #>
-
-
 
 
 
@@ -1128,6 +1201,8 @@ $arg3 = $args[3]
 $arg4 = $args[4]
 $arg5 = $args[5]
 $arg6 = $args[6]
+$arg7 = $args[7]
+$arg8 = $args[8]
 
 <#
 $path = "C:\hexatown.com\InfoCast"
@@ -1142,6 +1217,13 @@ if ($null -eq $arg0) {
 
 }
 
+
+do
+{
+
+$loop = $false
+    
+
 $typeName = $arg0.GetType().Name
 if ($typeName -eq "Int32") { 
         
@@ -1151,9 +1233,39 @@ if ($typeName -eq "Int32") {
     
 
 
-
 $command = $arg0.toUpper()
 switch ($command) {
+    {$_.StartsWith(".")} {
+        if ($_ -eq "."){
+            # write-host "Saving command as ."
+            setDotCmd $arg1 $arg2 $arg3 $arg4 $arg5 $arg6 $arg7 $arg8 
+        }else
+        {
+            
+            
+            # write-host "Executing command "
+
+            $dotCmd = getDotCmd $_
+            if ($null -ne $dotCmd){
+                $arg0 = $dotCmd.arg0
+                $arg1 = $dotCmd.arg1
+                $arg2 = $dotCmd.arg2
+                $arg3 = $dotCmd.arg3
+                $arg4 = $dotCmd.arg4
+                $arg5 = $dotCmd.arg5
+                $arg6 = $dotCmd.arg6
+                
+                $loop = $true
+            }else
+            {
+                ShowErrorMessage "dot Command not found"
+                
+            }
+            
+            
+        }
+    } 
+    DOTCMDS  { listDotCmds }
     DIR  { Invoke-Expression "explorer ." }
     DEMO { Start-Hexatown-Demo $arg1}
     VERSION { Show-Hexatown-Version }
@@ -1163,7 +1275,7 @@ switch ($command) {
     HOME { Home }
     DATA { GoDataEnv }
     POP { Pop-Location }
-    INSTALL { Install}
+    UPDATE { Update }
     ZIPENV { ZipEnv }
     RUN  { Start-Hexatown-PowerBrick $arg1 $arg2 $arg3 $arg4 $arg5 $arg6 }
 
@@ -1222,7 +1334,8 @@ switch ($command) {
     }
 }
 
-
+}
+while ($loop)
 
 
 <#
