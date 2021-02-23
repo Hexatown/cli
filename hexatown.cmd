@@ -13,4 +13,4 @@ SET arg9=%~9
 
 SET PSScript=C:\programdata\hexatown.com\.hexatown\hexatown.ps1
 
-Powershell -ExecutionPolicy Bypass -Command "& '%PSScript%' '%arg1%' '%arg2%' '%arg3%' '%arg4%' '%arg5%' '%arg6%' '%arg7%' '%arg8%' '%arg9%'"
+Powershell -Noexit -ExecutionPolicy Bypass -Command "& '%PSScript%' '%arg1%' '%arg2%' '%arg3%' '%arg4%' '%arg5%' '%arg6%' '%arg7%' '%arg8%' '%arg9%'"
