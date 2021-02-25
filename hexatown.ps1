@@ -600,12 +600,105 @@ function CreateLists($hexatown) {
 
 }
 
+function ThisFolderName($path){
+
+
+return $path.substring($path.LastIndexOf("\")+1)
+ 
+
+}
+
+function ParentPath($path){
+ return $path.substring(0,$path.LastIndexOf("\"))
+}
+
+function ReadEnvFile($filename){
+    $lines = Get-Content $filename
+        $envData = @{}
+    foreach ($line in $lines) {
+        $nameValuePair = $line.split("=")
+        if ($nameValuePair[0] -ne "") {
+                    
+            $value = $nameValuePair[1]
+                    
+            for ($i = 2; $i -lt $nameValuePair.Count; $i++) {
+                $value += "="
+                $value += $nameValuePair[$i]
+            }
+            $envData.Add($nameValuePair[0], $value)
+        }
+    }
+    return $envData
+}
+
+
+function New-TemporaryDirectory {
+    $parent = [System.IO.Path]::GetTempPath()
+    [string] $name = [System.Guid]::NewGuid()
+    New-Item -ItemType Directory -Path (Join-Path $parent $name)
+}
+function EnsurePath($path) {
+
+    If (!(test-path $path)) {
+        New-Item -ItemType Directory -Force -Path $path | Out-Null
+    }
+}
+
+
+function PackEnv($root) {
+
+    $package = Read-Hexatown-PowerBrickMetadata $root
+    $envRoot = ([System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::CommonApplicationData) + "\hexatown.com\") 
+
+    $envPath = join-path $envRoot  $package.name
+
+    $fileName =   "$($package.name).zip" 
+    $destinationPath = Join-Path $envRoot "$($package.name).zip"
+
+    $envData = ReadEnvFile "$envPath\.env"
+
+    $currentEnv = $envData.AADDOMAIN
+
+    $tempPath = New-TemporaryDirectory 
+    $tempDataPath = join-path $tempPath "data"
+    EnsurePath $tempDataPath
+    
+    $currentTempEnvPath = join-path $tempDataPath $currentEnv
+#    EnsurePath $currentTempEnvPath
+    
+    
+    $currentDataPath = join-path $envPath "data"
+    $currentEnvPath = join-path $currentDataPath $currentEnv
+
+    
+    Copy-Item $currentEnvPath  -Destination $tempDataPath -Recurse
+    
+
+    Compress-Archive   -Path "$envPath\.env" -DestinationPath $destinationPath -Force
+    Compress-Archive   -Path "$tempPath\*" -DestinationPath $destinationPath -Update
+    remove-item $tempPath -Force -Confirm:$false -Recurse
+
+    
+    write-host "Packed enviroment into '$destinationPath'"
+   
+
+}
 
 function Pack($root) {
+
+     $sourcePath= $root.Path
+    PackEnv $sourcePath
     
-    Compress-Archive -LiteralPath "$root\src" -DestinationPath "$root\src" -Force
-    $path = "explorer $root,select,src.zip"
-    Invoke-Expression $path
+    $fileName =  "$(ThisFolderName  (ParentPath $sourcePath))-$(ThisFolderName $sourcePath).zip" 
+    $destinationPath = Join-Path (ParentPath $sourcePath) $fileName
+ 
+    
+    Compress-Archive   -Path "$sourcePath\*" -DestinationPath $destinationPath -Force
+    write-host "Packed into '$destinationPath'"
+
+
+#    $path = "explorer $root,select,src.zip"
+#    Invoke-Expression $path
   
   
 }
