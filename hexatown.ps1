@@ -1215,11 +1215,12 @@ function getDotCmds(){
     if (!(Test-Path $myDotCommandsFilePath)){
         $structure = @{
             version = 1
-            commands = @()
+            commands = @("","") ## Crazy stuff with PowerShell changing types
         } 
     }else {
         
         $structure = Get-Content -Path $myDotCommandsFilePath | ConvertFrom-Json
+        # $structure
     }
     return $structure.commands
 }
@@ -1329,12 +1330,12 @@ if ($typeName -eq "Int32") {
 $command = $arg0.toUpper()
 switch ($command) {
     {$_.StartsWith(".")} {
-        if ($_ -eq "."){
-            # write-host "Saving command as ."
-            setDotCmd $arg1 $arg2 $arg3 $arg4 $arg5 $arg6 $arg7 $arg8 
-        }else
-        {
-            
+    switch ($_)
+{
+    '.+' {setDotCmd $arg1 $arg2 $arg3 $arg4 $arg5 $arg6 $arg7 $arg8 }
+    '..' {listDotCmds}
+    
+    Default {            
             
             # write-host "Executing command "
 
@@ -1357,8 +1358,8 @@ switch ($command) {
             
             
         }
-    } 
-    DOTCMDS  { listDotCmds }
+    } } 
+   
     DIR  { Invoke-Expression "explorer ." }
     DEMO { Start-Hexatown-Demo $arg1}
     VERSION { Show-Hexatown-Version }
