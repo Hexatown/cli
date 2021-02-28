@@ -17,7 +17,7 @@ Make the solution use as many out of the box component on the Microsoft 365 stac
 Visit [hexatown.com](https://www.hexatown.com)
 
 ## How to use
-
+.
 ### Setup a new project
 
 Prepares a new hexatown.com project
