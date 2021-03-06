@@ -955,7 +955,7 @@ $powerbricks = Get-Hexatown-PowerBricks
         $name = $powerbrick.name
     }
         write-host ("{0,3}" -f $counter) "" -ForegroundColor Yellow -NoNewline
-        write-host "$name $(' '* (30-$name.Length))"   "" -ForegroundColor Yellow -NoNewline
+        write-host "$name $(' '* (40-$name.Length))"   "" -ForegroundColor Yellow -NoNewline
         write-host $powerbrick.path -ForegroundColor White
     }
 
@@ -1277,6 +1277,16 @@ function getDotCmd($name){
 
 }
 
+function loadModules(){
+
+$modulePath = Join-path $PSScriptRoot "modules"
+foreach ($module in $modules)
+{
+Import-Module -Name (join-path $moduleNamePath $module) -DisableNameChecking    
+}
+}
+
+
 
 
 <#********************************************************************************************
@@ -1285,7 +1295,7 @@ function getDotCmd($name){
 **********************************************************************************************
 #>
 
-
+loadModules "PSReadLine"
 
 $path = Get-Location
 $arg0 = $args[0]
@@ -1305,9 +1315,11 @@ $arg1 = "prod"
 $arg2 = "site"
 #>
 if ($null -eq $arg0) {
-    ShowErrorMessage "Missing arguments "
-    write-host "use  'hexatown help' for a list or arguments  "
-    Exit
+    & "$PSScriptRoot\src\pages\file-explorer.ps1" 
+    #ShowErrorMessage "Missing arguments "
+    #write-host "use  'hexatown help' for a list or arguments  "
+    return
+#    Exit
 
 }
 
@@ -1359,7 +1371,8 @@ switch ($command) {
             
         }
     } } 
-   
+    UI  { & "$PSScriptRoot\src\pages\file-explorer.ps1" }
+  
     DIR  { Invoke-Expression "explorer ." }
     DEMO { Start-Hexatown-Demo $arg1}
     VERSION { Show-Hexatown-Version }

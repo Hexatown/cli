@@ -34,6 +34,7 @@ Copy-Item "$PSScriptRoot\hexa.ps1" -Destination $destdir -Force
 Copy-Item "$PSScriptRoot\hexatown.cmd" -Destination $destdir -Force
 Copy-Item "$PSScriptRoot\package.json" -Destination $destdir -Force
 Copy-Item "$PSScriptRoot\src" -Destination $destdir -Force -Recurse
+Copy-Item "$PSScriptRoot\modules" -Destination $destdir -Force -Recurse
 Copy-Item "$PSScriptRoot\img" -Destination $destdir -Force -Recurse
 
 Push-Location $destdir
