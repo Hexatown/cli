@@ -37,7 +37,7 @@ Copy-Item "$PSScriptRoot\src" -Destination $destdir -Force -Recurse
 Copy-Item "$PSScriptRoot\modules" -Destination $destdir -Force -Recurse
 Copy-Item "$PSScriptRoot\img" -Destination $destdir -Force -Recurse
 
-start "hexa"
+& "$destdir\src\pages\file-explorer.ps1"
 exit
 
 Push-Location $destdir
