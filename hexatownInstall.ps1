@@ -37,6 +37,9 @@ Copy-Item "$PSScriptRoot\src" -Destination $destdir -Force -Recurse
 Copy-Item "$PSScriptRoot\modules" -Destination $destdir -Force -Recurse
 Copy-Item "$PSScriptRoot\img" -Destination $destdir -Force -Recurse
 
+start "hexa"
+exit
+
 Push-Location $destdir
 Write-Host "****************************************************************" -ForegroundColor White -BackgroundColor Black
 Write-Host " Running DEMO                                                   " -ForegroundColor White -BackgroundColor Black
