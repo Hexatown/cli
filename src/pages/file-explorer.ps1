@@ -80,6 +80,10 @@ HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,0" Background="
 			<Button Content="OK" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="10,10,10,10" Name="ButtonOK" IsDefault="True" IsEnabled="False"/>
 		</StackPanel>
 		<TabControl Grid.Row="1" Grid.Column="1" Padding="-1" Name="TabNav" SelectedIndex="0">
+			<TabItem Header="Tab 0" Visibility="Collapsed" Name="Tab0">
+<Image Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left"  VerticalAlignment="Top"  Margin="10,10,10,10" 
+Source="$PSScriptRoot\Niels PowerBricks.png" />
+			</TabItem>
 			<TabItem Header="Tab 1" Visibility="Collapsed" Name="Tab1">
 				<Grid Background="#eeeeee" ShowGridLines="False" Name="PowerBricksGrid">
 					<Grid.RowDefinitions>
