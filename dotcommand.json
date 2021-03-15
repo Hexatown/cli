@@ -1,13 +1,17 @@
 ﻿{
     "version":  1,
-    "commands":  {
-                     "arg4":  null,
-                     "arg1":  "devops",
-                     "name":  ".myvm",
-                     "arg5":  null,
-                     "arg0":  "run",
-                     "arg2":  "connect",
-                     "arg6":  null,
-                     "arg3":  "hexatown-NGJOH"
-                 }
+    "commands":  [
+                     "",
+                     "",
+                     {
+                         "arg4":  null,
+                         "arg1":  "devops",
+                         "name":  ".myvm",
+                         "arg5":  null,
+                         "arg0":  "run",
+                         "arg2":  "start",
+                         "arg6":  null,
+                         "arg3":  "hexatown-NGJOH"
+                     }
+                 ]
 }
