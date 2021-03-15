@@ -47,7 +47,9 @@ if (![string]::IsNullOrEmpty($hexatownDownloadUrl)){
 if ($env:TEMP -eq $null) {
   $env:TEMP = Join-Path $env:SystemDrive 'temp'
 }
-$chocTempDir = Join-Path $env:TEMP "hexatown"
+
+$chocTempDir = join-path ( [System.IO.Path]::GetTempPath()) "hexatown"
+
 $tempDir = Join-Path $chocTempDir "hexaInstall"
 if (![System.IO.Directory]::Exists($tempDir)) {[void][System.IO.Directory]::CreateDirectory($tempDir)}
 $file = Join-Path $tempDir "hexatown.zip"

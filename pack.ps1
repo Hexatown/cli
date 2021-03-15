@@ -19,5 +19,6 @@ Compress-Archive -LiteralPath "$PSScriptRoot\gui.ps1" -DestinationPath "$PSScrip
 
 Compress-Archive -LiteralPath "$PSScriptRoot\package.json" -DestinationPath "$PSScriptRoot\hexatown" -Update
 Compress-Archive -LiteralPath "$PSScriptRoot\src" -DestinationPath "$PSScriptRoot\hexatown" -Update
+Compress-Archive -LiteralPath "$PSScriptRoot\modules" -DestinationPath "$PSScriptRoot\hexatown" -Update
 Compress-Archive -LiteralPath "$PSScriptRoot\img" -DestinationPath "$PSScriptRoot\hexatown" -Update
 

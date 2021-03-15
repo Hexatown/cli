@@ -643,6 +643,19 @@ function EnsurePath($path) {
         New-Item -ItemType Directory -Force -Path $path | Out-Null
     }
 }
+function GetPackageMetadata($powerBrickPath){
+$filename = join-path ($powerBrickPath) "package.json"
+
+if (!(Test-Path $filename)){
+    write-host "No PowerBrick found at $powerBrickPath " -ForegroundColor Yellow
+    return
+}
+
+
+return Get-Content $filename | ConvertFrom-Json
+
+}
+
 
 
 function PackEnv($root) {
@@ -680,14 +693,33 @@ function PackEnv($root) {
 
     
     write-host "Packed enviroment into '$destinationPath'"
-   
+    return $destinationPath
 
 }
 
 function Pack($root) {
 
-     $sourcePath= $root.Path
-    PackEnv $sourcePath
+
+    $powerBricksRoot = ([System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::UserProfile) + "\powerbricks\") 
+    EnsurePath $powerBricksRoot
+
+    $powerBricksDistribution = Join-Path $powerBricksRoot "distribution"
+    EnsurePath  $powerBricksDistribution
+
+    $packageMetadata = GetPackageMetadata $root
+
+    #$packageMetadata.name
+    #$packageMetadata.version
+
+    $distributionPackageName = join-path $powerBricksDistribution "$($packageMetadata.name).$($packageMetadata.version).zip"
+    if (Test-Path $distributionPackageName){
+        write-host "Version already exists" -ForegroundColor red
+        exit
+        
+    }
+
+    $sourcePath= $root.Path
+    $envZIP =  PackEnv $sourcePath
     
     $fileName =  "$(ThisFolderName  (ParentPath $sourcePath))-$(ThisFolderName $sourcePath).zip" 
     $destinationPath = Join-Path (ParentPath $sourcePath) $fileName
@@ -695,12 +727,20 @@ function Pack($root) {
     
     Compress-Archive   -Path "$sourcePath\*" -DestinationPath $destinationPath -Force
     write-host "Packed into '$destinationPath'"
-
-
-#    $path = "explorer $root,select,src.zip"
-#    Invoke-Expression $path
+    
+    Compress-Archive   -Path $envZIP,$destinationPath -DestinationPath $distributionPackageName -Force
+    write-host $distributionPackageName "Created"
   
   
+}
+
+function GoDistro(){
+    $powerBricksRoot = ([System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::UserProfile) + "\powerbricks\") 
+    $powerBricksDistribution = Join-Path $powerBricksRoot "distribution"
+    
+
+    iex "explorer $powerBricksDistribution"
+
 }
 
 function Init($root, $packageNamePart1,$packageNamePart2,$packageNamePart3,$packageNamePart4) {
@@ -955,7 +995,7 @@ $powerbricks = Get-Hexatown-PowerBricks
         $name = $powerbrick.name
     }
         write-host ("{0,3}" -f $counter) "" -ForegroundColor Yellow -NoNewline
-        write-host "$name $(' '* (30-$name.Length))"   "" -ForegroundColor Yellow -NoNewline
+        write-host "$name $(' '* (40-$name.Length))"   "" -ForegroundColor Yellow -NoNewline
         write-host $powerbrick.path -ForegroundColor White
     }
 
@@ -1277,6 +1317,16 @@ function getDotCmd($name){
 
 }
 
+function loadModules(){
+
+$modulePath = Join-path $PSScriptRoot "modules"
+foreach ($module in $modules)
+{
+Import-Module -Name (join-path $moduleNamePath $module) -DisableNameChecking    
+}
+}
+
+
 
 
 <#********************************************************************************************
@@ -1285,7 +1335,7 @@ function getDotCmd($name){
 **********************************************************************************************
 #>
 
-
+loadModules "PSReadLine"
 
 $path = Get-Location
 $arg0 = $args[0]
@@ -1305,9 +1355,11 @@ $arg1 = "prod"
 $arg2 = "site"
 #>
 if ($null -eq $arg0) {
-    ShowErrorMessage "Missing arguments "
-    write-host "use  'hexatown help' for a list or arguments  "
-    Exit
+    & "$PSScriptRoot\src\pages\file-explorer.ps1" 
+    #ShowErrorMessage "Missing arguments "
+    #write-host "use  'hexatown help' for a list or arguments  "
+    return
+#    Exit
 
 }
 
@@ -1359,7 +1411,9 @@ switch ($command) {
             
         }
     } } 
-   
+    UI  { & "$PSScriptRoot\src\pages\file-explorer.ps1" }
+    DIST  { GoDistro }
+  
     DIR  { Invoke-Expression "explorer ." }
     DEMO { Start-Hexatown-Demo $arg1}
     VERSION { Show-Hexatown-Version }
