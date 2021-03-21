@@ -16,4 +16,5 @@ if (!(Test-Path $moduleNamePath)){
 }
 
 
-download "PSReadLine"
+#download "PSReadLine"
+download "psISEProjectExplorer"
