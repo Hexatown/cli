@@ -76,7 +76,7 @@ $mainWindow.Close()
 Add-Type -AssemblyName PresentationCore, PresentationFramework
 
 $Xaml = @"
-<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" Icon="$PSScriptRoot\icon.ico" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Width="1000" Height="600" WindowState="Maximized" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,0" Background="orange" BorderThickness="0" BorderBrush="red" Foreground="green" OpacityMask="yellow" Name="MainWindow" WindowStartupLocation="CenterScreen" ResizeMode="CanResizeWithGrip" Title="Hexatown Power-Bricks Manager by jumpto365" WindowChrome.IsHitTestVisibleInChrome="True">
+<Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" Icon="$PSScriptRoot\icon.ico" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Width="1000" Height="600" WindowState="Maximized" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,0" Background="orange" BorderThickness="0" BorderBrush="red" Foreground="green" OpacityMask="yellow" Name="MainWindow" WindowStartupLocation="CenterScreen" ResizeMode="CanResizeWithGrip" Title="Hexatown by jumpto365" WindowChrome.IsHitTestVisibleInChrome="True">
 	<Grid Background="#eeeeee" ShowGridLines="False" Name="MainGrid">
 		<Grid.RowDefinitions>
 			<RowDefinition Height="50" />
@@ -114,7 +114,7 @@ $Xaml = @"
 						<RowDefinition Height="Auto" />
 						<RowDefinition Height="*" />
 					</Grid.RowDefinitions>
-					<Image Grid.Row="0" Source="$PSScriptRoot\Niels PowerBricks.png"></Image>
+					<Image Grid.Row="0" Source="$PSScriptRoot\NIELS HEXATOWN.png"></Image>
 					<StackPanel Grid.Row="1">
 
 						<TextBlock Grid.Row="1" TextWrapping="Wrap" Padding="10,10,10,10" Text="PowerBricks, Hexatown &amp; jumpto365" FontSize="24" FontWeight="Bold" Foreground="#333" />
@@ -209,7 +209,7 @@ $Xaml = @"
 
 					<Image Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,10,10,10" Source="$PSScriptRoot\Niels 2021 Proff Head shot.png" />
 					<StackPanel Grid.Row="0" Grid.Column="1">
-						<TextBlock TextWrapping="Wrap" Padding="10,10,10,10" Text="PowerBricks, Hexatown &amp; jumpto365" FontSize="24" FontWeight="Bold" Foreground="#333" />
+						<TextBlock TextWrapping="Wrap" Padding="10,10,10,10" Text="Hexatown by jumpto365" FontSize="24" FontWeight="Bold" Foreground="#333" />
 						<TextBlock TextWrapping="Wrap" Padding="10,10,10,10" Text="Niels is a self-taught IT engineer who was introduced to Microsoft tools when DOS 1.1 was born in the 1980s. His focus is bridging the technical gap between as-is and to-be platforms, with as much time spent on coding as possible. Niels is the brains behind the web version of the Periodic Table of Office 365." FontSize="16" FontWeight="Bold" Foreground="#333" />
 						<TextBlock>
 							<Hyperlink NavigateUri="https://jumpto365.com" Name="link1">
@@ -218,8 +218,8 @@ $Xaml = @"
 							<Hyperlink NavigateUri="https://github.com/hexatown" Name="link2">
    github.com/hexatown
    </Hyperlink>
-							<Hyperlink NavigateUri="https://jumpto365.com/powerbricks" Name="link3">
-   power-bricks.com
+							<Hyperlink NavigateUri="https://www.hexatown.com" Name="link3">
+   hexatown.com
    </Hyperlink>
 
 						</TextBlock>
@@ -405,7 +405,16 @@ $data
 
 "@
 
-$DataObject =  ConvertFrom-Json $dataText
+try
+{
+$DataObject =  ConvertFrom-Json $dataText    
+}
+
+catch 
+{
+    Write-Host "Error parsing RSS Feed " $_
+}
+
 
 
 $DataContext = New-Object System.Collections.ObjectModel.ObservableCollection[Object]
