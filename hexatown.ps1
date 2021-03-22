@@ -1336,7 +1336,7 @@ Import-Module -Name (join-path $moduleNamePath $module) -DisableNameChecking
 #>
 
 loadModules "PSReadLine"
-
+loadModules "PsISEProjectExplorer"
 $path = Get-Location
 $arg0 = $args[0]
 $arg1 = $args[1]
