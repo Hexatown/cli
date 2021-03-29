@@ -79,7 +79,7 @@ $Xaml = @"
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" Icon="$PSScriptRoot\icon.ico" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Width="1000" Height="600" WindowState="Maximized" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,0,0,0" Background="orange" BorderThickness="0" BorderBrush="red" Foreground="green" OpacityMask="yellow" Name="MainWindow" WindowStartupLocation="CenterScreen" ResizeMode="CanResizeWithGrip" Title="Hexatown by jumpto365" WindowChrome.IsHitTestVisibleInChrome="True">
 	<Grid Background="#eeeeee" ShowGridLines="False" Name="MainGrid">
 		<Grid.RowDefinitions>
-			<RowDefinition Height="50" />
+			<RowDefinition Height="50"  />
 			<RowDefinition Height="13*" />
 			<RowDefinition Height="50" />
 		</Grid.RowDefinitions>
@@ -88,16 +88,16 @@ $Xaml = @"
 			<ColumnDefinition Width="8*" />
 		</Grid.ColumnDefinitions>
 
-		<StackPanel Background="#ffffff" SnapsToDevicePixels="True" Grid.Row="0" Grid.Column="0">
-			<Image Grid.Row="0" Source="$PSScriptRoot\hexatown-logo-128h.png" Height="48"></Image>
+		<StackPanel Background="#ffffff" SnapsToDevicePixels="True" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal">
+			<Image Grid.Row="0" Source="$PSScriptRoot\hexatown-logo-128h.png" Height="48"  ></Image>
 
-			<TextBox HorizontalAlignment="Right" VerticalAlignment="Center" Height="20" Width="300" TextWrapping="Wrap" Text="🔎 Search" Margin="10,10,10,10" Visibility="Hidden" />
+			<TextBox HorizontalAlignment="Right" VerticalAlignment="Center" Height="20" Width="300" TextWrapping="Wrap" Text="🔎 Search" Margin="10,10,10,10"  Visibility="Hidden"  />
 		</StackPanel>
 
 		<StackPanel Background="#ffffff" SnapsToDevicePixels="True" Grid.Row="1" Grid.Column="0">
 			<Button Content="PowerBricks" HorizontalContentAlignment="Left" Padding="10,0,0,10" VerticalAlignment="Top" Height="40" Background="#eeeeee" BorderThickness="0,0,0,0" FontWeight="Bold" Foreground="#333" Name="Tab1BT" />
-			<Button Content="SharePoint" HorizontalContentAlignment="Left" Padding="10,0,0,10" VerticalAlignment="Top" Height="40" Background="#eeeeee" BorderThickness="0,0,0,0" FontWeight="Bold" Foreground="#333" Name="Tab2BT" />
-			<Button Content="Hosts" HorizontalContentAlignment="Left" Padding="10,0,0,10" VerticalAlignment="Top" Height="40" Background="#eeeeee" BorderThickness="0,0,0,0" FontWeight="Bold" Foreground="#333" Name="Tab3BT" />
+			<Button Content="SharePoint" HorizontalContentAlignment="Left" Padding="10,0,0,10" VerticalAlignment="Top" Height="40" Background="#eeeeee" BorderThickness="0,0,0,0" FontWeight="Bold" Foreground="#333" Name="Tab2BT"  Visibility="Hidden" />
+			<Button Content="Hosts" HorizontalContentAlignment="Left" Padding="10,0,0,10" VerticalAlignment="Top" Height="40" Background="#eeeeee" BorderThickness="0,0,0,0" FontWeight="Bold" Foreground="#333" Name="Tab3BT"  Visibility="Hidden" />
 			<Button Content="Tab 4" HorizontalContentAlignment="Left" Padding="10,0,0,10" VerticalAlignment="Top" Height="40" Background="#eeeeee" BorderThickness="0,0,0,0" FontWeight="Bold" Foreground="#333" Name="Tab4BT" Visibility="Hidden" />
 			<Button Content="About" HorizontalContentAlignment="Left" Padding="10,0,0,10" VerticalAlignment="Top" Height="40" Background="#eeeeee" BorderThickness="0,0,0,0" FontWeight="Bold" Foreground="#333" Name="Tab5BT" />
 			<Image Height="100" Width="170" Name="Icon" SnapsToDevicePixels="True" Source="https://avatars.githubusercontent.com/u/25307176" Margin="0,10,0,10" VerticalAlignment="Bottom" Visibility="Hidden" />

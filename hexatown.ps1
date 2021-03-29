@@ -733,7 +733,19 @@ function Pack($root) {
   
   
 }
+function DownloadAndInstall($base64url){
 
+try
+{
+    $url = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($base64url))
+    & "$psscriptroot\InstallPackage.ps1" -url $url    
+}
+catch 
+{
+    Write-Host $_
+}
+
+}
 function GoDistro(){
     $powerBricksRoot = ([System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::UserProfile) + "\powerbricks\") 
     $powerBricksDistribution = Join-Path $powerBricksRoot "distribution"
@@ -1413,6 +1425,7 @@ switch ($command) {
     } } 
     UI  { & "$PSScriptRoot\src\pages\file-explorer.ps1" }
     DIST  { GoDistro }
+    GET  { DownloadAndInstall $arg1 }
   
     DIR  { Invoke-Expression "explorer ." }
     DEMO { Start-Hexatown-Demo $arg1}

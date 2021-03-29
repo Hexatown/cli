@@ -1,3 +1,91 @@
+param (
+[Parameter(Mandatory=$true)]
+$url #="https://hexatown.blob.core.windows.net/powerbricks/room-manager.0.0.1.zip?sp=r&st=2021-03-29T10:56:43Z&se=2021-03-29T18:56:43Z&spr=https&sv=2020-02-10&sr=b&sig=Sfo1R95EfaPva2wMW3OFdLURg5xjMxyfdQ9xJS6Jj4w%3D" 
+)
+function Get-Downloader {
+param (
+  [string]$url
+ )
+
+  $downloader = new-object System.Net.WebClient
+
+  $defaultCreds = [System.Net.CredentialCache]::DefaultCredentials
+  if ($defaultCreds -ne $null) {
+    $downloader.Credentials = $defaultCreds
+  }
+
+  $ignoreProxy = $env:hexatownIgnoreProxy
+  if ($ignoreProxy -ne $null -and $ignoreProxy -eq 'true') {
+    Write-Debug "Explicitly bypassing proxy due to user environment variable"
+    $downloader.Proxy = [System.Net.GlobalProxySelection]::GetEmptyWebProxy()
+  } else {
+    # check if a proxy is required
+    $explicitProxy = $env:hexatownProxyLocation
+    $explicitProxyUser = $env:hexatownProxyUser
+    $explicitProxyPassword = $env:hexatownProxyPassword
+    if ($explicitProxy -ne $null -and $explicitProxy -ne '') {
+      # explicit proxy
+      $proxy = New-Object System.Net.WebProxy($explicitProxy, $true)
+      if ($explicitProxyPassword -ne $null -and $explicitProxyPassword -ne '') {
+        $passwd = ConvertTo-SecureString $explicitProxyPassword -AsPlainText -Force
+        $proxy.Credentials = New-Object System.Management.Automation.PSCredential ($explicitProxyUser, $passwd)
+      }
+
+      Write-Debug "Using explicit proxy server '$explicitProxy'."
+      $downloader.Proxy = $proxy
+
+    } elseif (!$downloader.Proxy.IsBypassed($url)) {
+      # system proxy (pass through)
+      $creds = $defaultCreds
+      if ($creds -eq $null) {
+        Write-Debug "Default credentials were null. Attempting backup method"
+        $cred = get-credential
+        $creds = $cred.GetNetworkCredential();
+      }
+
+      $proxyaddress = $downloader.Proxy.GetProxy($url).Authority
+      Write-Debug "Using system proxy server '$proxyaddress'."
+      $proxy = New-Object System.Net.WebProxy($proxyaddress)
+      $proxy.Credentials = $creds
+      $downloader.Proxy = $proxy
+    }
+  }
+
+  return $downloader
+}
+
+
+function Download-File {
+param (
+  [string]$url,
+  [string]$file
+ )
+  #Write-Output "Downloading $url to $file"
+  $downloader = Get-Downloader $url
+
+  $downloader.DownloadFile($url, $file)
+}
+
+
+
+$tempDir = join-path ( [System.IO.Path]::GetTempPath()) "hexatown"
+if (![System.IO.Directory]::Exists($tempDir)) {[void][System.IO.Directory]::CreateDirectory($tempDir)}
+$file = Join-Path $tempDir "hexatown.zip"
+
+
+# Download the Hexatown package
+Write-Output "Downloading package from $url."
+Download-File $url $file
+
+# unzip the package
+Write-Output "Extracting $file to $tempDir..."
+Expand-Archive -Path "$file" -DestinationPath "$tempDir/install" -Force
+
+if (!(Test-path "$tempDir/install/powerbrick.json")){
+    throw "Missing manifest $("$tempDir/install/powerbrick.json")" 
+}
+
+
 Write-Host "Installing Hexatown " -ForegroundColor Green
 
 $environmentPath = ([System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::CommonApplicationData)) 
@@ -32,7 +120,6 @@ Copy-Item "$PSScriptRoot\xt.ps1" -Destination $destdir -Force
 Copy-Item "$PSScriptRoot\hxt.ps1" -Destination $destdir -Force
 Copy-Item "$PSScriptRoot\hexa.ps1" -Destination $destdir -Force
 Copy-Item "$PSScriptRoot\hexatree.ps1" -Destination $destdir -Force
-Copy-Item "$PSScriptRoot\InstallPackage.ps1" -Destination $destdir -Force
 Copy-Item "$PSScriptRoot\hexatown.cmd" -Destination $destdir -Force
 Copy-Item "$PSScriptRoot\package.json" -Destination $destdir -Force
 Copy-Item "$PSScriptRoot\src" -Destination $destdir -Force -Recurse
@@ -59,3 +146,5 @@ read-host
 
 Write-Host "Press Enter to close ..." -ForegroundColor Green
 read-host 
+
+
