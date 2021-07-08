@@ -813,6 +813,8 @@ function Init($root, $packageNamePart1,$packageNamePart2,$packageNamePart3,$pack
     
     write-host "Project file created" -ForegroundColor DarkGreen
 
+
+    Register-Hexatown-PowerBrick (Get-Location)
     OpenEnv $packageName $true
     # Editor $packageFolder    
 }
@@ -854,12 +856,20 @@ function GoDataEnv() {
 function OpenEnv($name,$stay=$false) {
     $environmentPath = ([System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::CommonApplicationData)) 
     $appdir = $environmentPath + "\hexatown.com\" + $name
+    $datadir = $environmentPath + "\hexatown.com\" + $name + "\data"
+    $dataproductiondir = $environmentPath + "\hexatown.com\" + $name + "\data\production"
     $envfile = $environmentPath + "\hexatown.com\" + $name + "\.env"
     $defaultenvfile = $environmentPath + "\hexatown.com\.default\.env"
 
     write-host $appdir 
     if (!(Test-Path $appdir)) {
-        New-Item -ItemType Directory -Force -Path $appdir
+        New-Item -ItemType Directory -Force -Path $appdir | Out-Null
+    }
+    if (!(Test-Path $datadir)) {
+        New-Item -ItemType Directory -Force -Path $datadir | Out-Null
+    }
+    if (!(Test-Path $dataproductiondir)) {
+        New-Item -ItemType Directory -Force -Path $dataproductiondir | Out-Null
     }
     if (!(Test-Path $envfile )) {
 
@@ -867,11 +877,7 @@ function OpenEnv($name,$stay=$false) {
         $defaultValues = Get-Content -Path $defaultenvfile -raw
         }else{
         $defaultValues = @"
-APPCLIENT_ID=
-APPCLIENT_SECRET=
-APPCLIENT_DOMAIN=
-SITEURL=https://xxxxxxx.sharepoint.com/sites/hexatown
-AADDOMAIN=xxxxxx.com
+AADDOMAIN=production
 "@
 }
         $defaultValues | Out-File $envfile
