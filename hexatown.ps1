@@ -766,8 +766,8 @@ function Init($root, $packageNamePart1,$packageNamePart2,$packageNamePart3,$pack
         return
     }
 
-    if ($folderName.Length -gt 20   ) {
-        ShowErrorMessage "Project name may not contain more that 20 characters"
+    if ($folderName.Length -gt 15   ) {
+        ShowErrorMessage "Project name may not contain more that 15 characters"
         return
     }
 
