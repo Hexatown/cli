@@ -813,7 +813,7 @@ function Init($root, $packageNamePart1,$packageNamePart2,$packageNamePart3,$pack
     
     write-host "Project file created" -ForegroundColor DarkGreen
 
-    # OpenEnv $packageName
+    OpenEnv $packageName $true
     # Editor $packageFolder    
 }
 
@@ -851,7 +851,7 @@ function GoDataEnv() {
 
 
 
-function OpenEnv($name) {
+function OpenEnv($name,$stay=$false) {
     $environmentPath = ([System.Environment]::GetFolderPath([System.Environment+SpecialFolder]::CommonApplicationData)) 
     $appdir = $environmentPath + "\hexatown.com\" + $name
     $envfile = $environmentPath + "\hexatown.com\" + $name + "\.env"
@@ -878,10 +878,10 @@ AADDOMAIN=xxxxxx.com
         
     }
     
-    # Invoke-Expression "explorer $appdir"
-    Push-Location $appdir
-    Invoke-Expression "ise $envfile"
-    
+    if (!$stay){
+        Push-Location $appdir
+        Invoke-Expression "ise $envfile"
+    }
 }
 
 function OpenSrc($path) {
