@@ -813,8 +813,8 @@ function Init($root, $packageNamePart1,$packageNamePart2,$packageNamePart3,$pack
     
     write-host "Project file created" -ForegroundColor DarkGreen
 
-    OpenEnv $packageName
-    Editor $packageFolder    
+    # OpenEnv $packageName
+    # Editor $packageFolder    
 }
 
 function Editor($root) {
@@ -1347,8 +1347,8 @@ Import-Module -Name (join-path $moduleNamePath $module) -DisableNameChecking
 **********************************************************************************************
 #>
 
-loadModules "PSReadLine"
-loadModules "PsISEProjectExplorer"
+# loadModules "PSReadLine"
+# loadModules "PsISEProjectExplorer"
 $path = Get-Location
 $arg0 = $args[0]
 $arg1 = $args[1]
