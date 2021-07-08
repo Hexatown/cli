@@ -766,6 +766,11 @@ function Init($root, $packageNamePart1,$packageNamePart2,$packageNamePart3,$pack
         return
     }
 
+    if ($folderName.Length -gt 20   ) {
+        ShowErrorMessage "Project name may not contain more that 20 characters"
+        return
+    }
+
     $packageName  = $folderName.replace(' ', '-').ToLower()
     
     $packageFolder = Join-Path  $root.Path  $folderName 
